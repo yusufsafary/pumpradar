@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PumpRadar.space — 波 Crypto Art Dashboard</title>
+  <style>
+    /* ===================================================
+       DESIGN SYSTEM — PumpRadar.space
+       Aesthetic: Neo Ukiyo-e × Murakami Pop × Dark Tech
+       =================================================== */
+    @import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;700;800&family=Space+Mono:wght@400;700&display=swap');
+
+    :root {
+      --bg-void:        #050508;
+      --bg-surface:     #0b0b12;
+      --bg-card:        #10101c;
+      --bg-card-hover:  #14142a;
+
+      --gold:           #e8c36a;
+      --gold-light:     #f5dfa0;
+      --gold-glow:      rgba(232, 195, 106, 0.4);
+
+      --sakura:         #f0a8c0;
+      --sakura-glow:    rgba(240, 168, 192, 0.35);
+
+      --neon-cyan:      #00f5d4;
+      --neon-cyan-glow: rgba(0, 245, 212, 0.3);
+
+      --neon-violet:    #b14aed;
+      --neon-violet-glow: rgba(177, 74, 237, 0.3);
+
+      --wave-blue:      #3a7bd5;
+      --wave-teal:      #0093a8;
+
+      --text-primary:   #f0ede8;
+      --text-secondary: #9893a8;
+      --text-muted:     #4e4a60;
+
+      --border-subtle:  rgba(255,255,255,0.06);
+      --border-card:    rgba(255,255,255,0.09);
+
+      --font-display:   'Shippori Mincho', serif;
+      --font-mono:      'Space Mono', monospace;
+
+      --radius-sm:      6px;
+      --radius-md:      12px;
+      --radius-lg:      20px;
+      --radius-pill:    999px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg-void);
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* ===================================================
+       AMBIENT BACKGROUND — floating ukiyo-e elements
+       =================================================== */
+    .bg-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    /* Subtle noise texture overlay */
+    .bg-canvas::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      opacity: 0.4;
+    }
+
+    /* Kintsugi gold vein lines */
+    .bg-canvas svg.kintsugi-veins {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.07;
+    }
+
+    /* Floating orbs */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      animation: orb-drift linear infinite;
+      opacity: 0;
+    }
+    .orb-1 {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, var(--neon-violet) 0%, transparent 70%);
+      top: -150px; right: -100px;
+      animation-duration: 22s;
+      animation-delay: 0s;
+    }
+    .orb-2 {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, var(--wave-blue) 0%, transparent 70%);
+      bottom: -100px; left: -80px;
+      animation-duration: 28s;
+      animation-delay: -8s;
+    }
+    .orb-3 {
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, var(--sakura) 0%, transparent 70%);
+      top: 40%; left: 50%;
+      animation-duration: 18s;
+      animation-delay: -5s;
+    }
+    @keyframes orb-drift {
+      0%   { opacity: 0;    transform: translate(0px, 0px)   scale(1); }
+      15%  { opacity: 0.12; }
+      50%  { opacity: 0.18; transform: translate(30px,-40px) scale(1.08); }
+      85%  { opacity: 0.12; }
+      100% { opacity: 0;    transform: translate(0px, 0px)   scale(1); }
+    }
+
+    /* Floating sakura petals */
+    .petal {
+      position: absolute;
+      width: 8px; height: 8px;
+      border-radius: 50% 0 50% 0;
+      background: var(--sakura);
+      opacity: 0;
+      animation: petal-fall linear infinite;
+    }
+    @keyframes petal-fall {
+      0%   { opacity: 0;    transform: translateY(-20px) rotate(0deg); }
+      10%  { opacity: 0.6; }
+      90%  { opacity: 0.2; }
+      100% { opacity: 0;    transform: translateY(110vh) rotate(720deg) translateX(80px); }
+    }
+
+    /* ===================================================
+       LAYOUT SHELL
+       =================================================== */
+    .shell {
+      position: relative;
+      z-index: 1;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    /* ===================================================
+       HEADER
+       =================================================== */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 32px 0 40px;
+      border-bottom: 1px solid var(--border-subtle);
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .logo-group {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+    }
+
+    .logo-kanji {
+      font-family: var(--font-display);
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--gold);
+      text-shadow: 0 0 30px var(--gold-glow), 0 0 60px rgba(232,195,106,0.15);
+      letter-spacing: 4px;
+      animation: kanji-pulse 4s ease-in-out infinite;
+    }
+    @keyframes kanji-pulse {
+      0%, 100% { text-shadow: 0 0 30px var(--gold-glow), 0 0 60px rgba(232,195,106,0.15); }
+      50%       { text-shadow: 0 0 50px var(--gold-glow), 0 0 100px rgba(232,195,106,0.25); }
+    }
+
+    .logo-text {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+    .logo-text span {
+      color: var(--neon-cyan);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .live-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(0,245,212,0.25);
+      background: rgba(0,245,212,0.06);
+      font-size: 0.72rem;
+      letter-spacing: 2px;
+      color: var(--neon-cyan);
+      text-transform: uppercase;
+    }
+    .live-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--neon-cyan);
+      box-shadow: 0 0 8px var(--neon-cyan);
+      animation: blink 1.4s ease-in-out infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.2; }
+    }
+
+    .header-stat {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+    }
+    .header-stat strong {
+      color: var(--gold);
+      display: block;
+      font-size: 1rem;
+    }
+
+    /* ===================================================
+       LEGEND / FILTER BAR
+       =================================================== */
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 28px 0 24px;
+      flex-wrap: wrap;
+    }
+
+    .filter-label {
+      font-size: 0.68rem;
+      letter-spacing: 3px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-right: 4px;
+    }
+
+    .filter-btn {
+      cursor: pointer;
+      padding: 7px 18px;
+      border-radius: var(--radius-pill);
+      border: 1px solid var(--border-card);
+      background: transparent;
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      transition: all 0.25s ease;
+    }
+    .filter-btn:hover,
+    .filter-btn.active {
+      border-color: var(--gold);
+      color: var(--gold);
+      background: rgba(232,195,106,0.07);
+      box-shadow: 0 0 16px rgba(232,195,106,0.12);
+    }
+    .filter-btn.f-pump.active  { border-color: var(--neon-cyan); color: var(--neon-cyan); background: rgba(0,245,212,0.07); box-shadow: 0 0 16px var(--neon-cyan-glow); }
+    .filter-btn.f-whale.active { border-color: var(--gold); color: var(--gold); background: rgba(232,195,106,0.07); box-shadow: 0 0 16px var(--gold-glow); }
+    .filter-btn.f-all.active   { border-color: var(--sakura); color: var(--sakura); background: rgba(240,168,192,0.07); box-shadow: 0 0 16px var(--sakura-glow); }
+
+    /* Legend pills */
+    .legend {
+      display: flex;
+      gap: 18px;
+      margin-left: auto;
+      flex-wrap: wrap;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.68rem;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+    .legend-icon {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+    }
+    .legend-pump  { background: var(--neon-cyan); box-shadow: 0 0 8px var(--neon-cyan); }
+    .legend-whale { background: var(--gold);      box-shadow: 0 0 8px var(--gold-glow); }
+    .legend-both  { background: linear-gradient(135deg, var(--neon-cyan), var(--gold)); box-shadow: 0 0 8px var(--sakura-glow); }
+
+    /* ===================================================
+       TOKEN GRID
+       =================================================== */
+    .token-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    /* ===================================================
+       TOKEN CARD — Core Styles
+       =================================================== */
+    .token-card {
+      position: relative;
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      cursor: pointer;
+      overflow: hidden;
+      transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+      animation: card-enter 0.6s ease both;
+    }
+
+    @keyframes card-enter {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    /* stagger delays injected inline via JS */
+
+    .token-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius-lg);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+    }
+
+    .token-card:hover {
+      transform: translateY(-4px) scale(1.015);
+      background: var(--bg-card-hover);
+    }
+
+    /* Kintsugi crack lines (decorative SVG overlay per card) */
+    .kintsugi-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.0;
+      transition: opacity 0.5s ease;
+    }
+    .token-card:hover .kintsugi-overlay { opacity: 1; }
+
+    /* ===================================================
+       STATE: PUMP — Neo Ukiyo-e wave / cyan bloom
+       =================================================== */
+    .token-card.is-pump {
+      border-color: rgba(0,245,212,0.22);
+    }
+    .token-card.is-pump::before {
+      background: radial-gradient(ellipse at 50% 110%, rgba(0,245,212,0.1) 0%, transparent 70%);
+      opacity: 1;
+    }
+    .token-card.is-pump:hover {
+      border-color: var(--neon-cyan);
+      box-shadow: 0 8px 48px rgba(0,245,212,0.18), 0 0 0 1px rgba(0,245,212,0.15);
+    }
+
+    /* Pump pulse ring */
+    .pump-ring {
+      position: absolute;
+      top: -60px; left: 50%;
+      transform: translateX(-50%);
+      width: 200px; height: 200px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(0,245,212,0.3);
+      animation: pump-expand 2.8s ease-out infinite;
+      pointer-events: none;
+    }
+    .pump-ring:nth-child(2) { animation-delay: 0.9s; }
+    .pump-ring:nth-child(3) { animation-delay: 1.8s; }
+
+    @keyframes pump-expand {
+      0%   { transform: translateX(-50%) scale(0.4); opacity: 0.7; }
+      100% { transform: translateX(-50%) scale(2.2); opacity: 0; }
+    }
+
+    /* ===================================================
+       STATE: WHALE — Kintsugi gold glow
+       =================================================== */
+    .token-card.is-whale {
+      border-color: rgba(232,195,106,0.28);
+    }
+    .token-card.is-whale::before {
+      background: radial-gradient(ellipse at 50% 0%, rgba(232,195,106,0.12) 0%, transparent 65%);
+      opacity: 1;
+    }
+    .token-card.is-whale:hover {
+      border-color: var(--gold);
+      box-shadow: 0 8px 48px rgba(232,195,106,0.2), 0 0 0 1px rgba(232,195,106,0.18);
+    }
+
+    /* Gold shimmer sweep */
+    .whale-shimmer {
+      position: absolute;
+      top: 0; left: -100%;
+      width: 60%; height: 100%;
+      background: linear-gradient(105deg, transparent 30%, rgba(232,195,106,0.1) 50%, transparent 70%);
+      animation: shimmer-sweep 3.5s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes shimmer-sweep {
+      0%   { left: -100%; }
+      40%  { left: 150%; }
+      100% { left: 150%; }
+    }
+
+    /* ===================================================
+       STATE: PUMP + WHALE — Murakami rainbow bloom
+       =================================================== */
+    .token-card.is-pump.is-whale {
+      border-color: rgba(177,74,237,0.3);
+    }
+    .token-card.is-pump.is-whale::before {
+      background: conic-gradient(from 180deg at 50% 110%,
+        rgba(0,245,212,0.12),
+        rgba(232,195,106,0.12),
+        rgba(240,168,192,0.12),
+        rgba(177,74,237,0.12),
+        rgba(0,245,212,0.12)
+      );
+      opacity: 1;
+    }
+    .token-card.is-pump.is-whale:hover {
+      border-color: var(--sakura);
+      box-shadow:
+        0 8px 48px rgba(177,74,237,0.2),
+        0 0 0 1px rgba(177,74,237,0.2),
+        0 0 60px rgba(240,168,192,0.1);
+    }
+
+    /* ===================================================
+       CARD INTERNALS
+       =================================================== */
+
+    /* Art motif top section */
+    .card-art {
+      position: relative;
+      width: 100%;
+      height: 96px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Token symbol large glyph */
+    .token-glyph {
+      font-family: var(--font-display);
+      font-size: 2.8rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      position: relative;
+      z-index: 2;
+      transition: transform 0.35s ease;
+      line-height: 1;
+    }
+    .token-card:hover .token-glyph { transform: scale(1.12); }
+
+    /* Bloom circle behind glyph */
+    .glyph-bloom {
+      position: absolute;
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      filter: blur(22px);
+      z-index: 1;
+      opacity: 0.5;
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    .token-card:hover .glyph-bloom {
+      opacity: 0.85;
+      transform: scale(1.4);
+    }
+
+    /* Kusama polka dots background for card art */
+    .polka-bg {
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      opacity: 0.08;
+      transition: opacity 0.4s ease;
+    }
+    .token-card:hover .polka-bg { opacity: 0.18; }
+
+    /* Divider */
+    .card-divider {
+      width: 100%;
+      height: 1px;
+      background: var(--border-subtle);
+      margin: 0 0 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .card-divider::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 60%; height: 100%;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      opacity: 0;
+      transition: opacity 0.3s, left 0s;
+    }
+    .token-card:hover .card-divider::after {
+      left: 150%;
+      opacity: 0.6;
+      transition: left 0.7s ease, opacity 0.3s;
+    }
+
+    /* Meta row */
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 14px;
+    }
+    .token-name {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    .token-chain {
+      font-size: 0.65rem;
+      letter-spacing: 2.5px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-top: 3px;
+    }
+    .token-price-block { text-align: right; }
+    .token-price {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .token-change {
+      font-size: 0.72rem;
+      letter-spacing: 1px;
+      margin-top: 3px;
+    }
+    .token-change.pos { color: var(--neon-cyan); }
+    .token-change.neg { color: var(--sakura); }
+
+    /* Status tags */
+    .card-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .tag {
+      padding: 4px 12px;
+      border-radius: var(--radius-pill);
+      font-size: 0.65rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 700;
+      border: 1px solid;
+    }
+    .tag-pump  { color: var(--neon-cyan); border-color: rgba(0,245,212,0.4); background: rgba(0,245,212,0.08); }
+    .tag-whale { color: var(--gold);      border-color: rgba(232,195,106,0.4); background: rgba(232,195,106,0.08); }
+    .tag-quiet { color: var(--text-muted); border-color: var(--border-subtle); background: transparent; }
+
+    /* Stats bar */
+    .card-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .stat-cell {
+      background: rgba(255,255,255,0.025);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      border: 1px solid var(--border-subtle);
+    }
+    .stat-label {
+      font-size: 0.6rem;
+      letter-spacing: 2px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .stat-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    /* Volume bar */
+    .vol-bar-wrap {
+      margin-top: 14px;
+    }
+    .vol-bar-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.62rem;
+      letter-spacing: 2px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .vol-bar-track {
+      width: 100%;
+      height: 4px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .vol-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Tooltip */
+    .card-tooltip {
+      position: absolute;
+      bottom: calc(100% + 12px);
+      left: 50%;
+      transform: translateX(-50%) translateY(6px);
+      background: #1a1a2e;
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      font-size: 0.72rem;
+      color: var(--text-primary);
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      z-index: 100;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    }
+    .token-card:hover .card-tooltip {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    .tooltip-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 4px;
+    }
+    .tooltip-key { color: var(--text-muted); }
+    .tooltip-val { font-weight: 700; }
+
+    /* ===================================================
+       SECTION HEADER
+       =================================================== */
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      margin: 40px 0 20px;
+    }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: 2px;
+    }
+    .section-kanji {
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      color: var(--gold);
+      letter-spacing: 4px;
+      opacity: 0.7;
+    }
+    .section-count {
+      margin-left: auto;
+      font-size: 0.68rem;
+      letter-spacing: 2px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    /* ===================================================
+       TICKER TAPE
+       =================================================== */
+    .ticker-wrap {
+      width: 100%;
+      overflow: hidden;
+      border-top: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 10px 0;
+      margin-bottom: 12px;
+      background: rgba(255,255,255,0.015);
+    }
+    .ticker-track {
+      display: flex;
+      gap: 48px;
+      white-space: nowrap;
+      animation: ticker-scroll 20s linear infinite;
+    }
+    @keyframes ticker-scroll {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+    .ticker-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.72rem;
+      letter-spacing: 1px;
+      color: var(--text-secondary);
+    }
+    .ticker-sym { font-weight: 700; color: var(--text-primary); }
+    .ticker-sep { color: var(--text-muted); }
+
+    /* ===================================================
+       FOOTER
+       =================================================== */
+    footer {
+      border-top: 1px solid var(--border-subtle);
+      padding: 28px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .footer-left {
+      font-size: 0.68rem;
+      letter-spacing: 2px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+    .footer-left span {
+      font-family: var(--font-display);
+      color: var(--gold);
+    }
+    .footer-right {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      letter-spacing: 1.5px;
+    }
+
+    /* ===================================================
+       RESPONSIVE
+       =================================================== */
+    @media (max-width: 640px) {
+      .logo-kanji { font-size: 1.6rem; }
+      .header-stat { display: none; }
+      .legend { display: none; }
+      .token-grid { grid-template-columns: 1fr; }
+      .shell { padding: 0 16px 60px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- =====================================================
+       AMBIENT BACKGROUND
+       ===================================================== -->
+  <div class="bg-canvas">
+    <!-- Kintsugi gold vein lines SVG -->
+    <svg class="kintsugi-veins" viewBox="0 0 1440 900" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+      <path d="M0,450 Q200,200 400,380 T800,300 T1200,420 T1440,350" stroke="#e8c36a" stroke-width="1.5" fill="none"/>
+      <path d="M0,600 Q300,500 500,580 T900,520 T1440,600" stroke="#e8c36a" stroke-width="1" fill="none"/>
+      <path d="M720,0 Q680,200 750,400 Q800,550 720,900" stroke="#e8c36a" stroke-width="1" fill="none"/>
+      <path d="M1440,0 Q1200,180 1100,350 T980,600 T1050,900" stroke="#e8c36a" stroke-width="0.8" fill="none"/>
+      <path d="M200,0 Q240,150 180,320 Q130,480 220,650 Q280,780 200,900" stroke="#e8c36a" stroke-width="0.8" fill="none"/>
+    </svg>
+
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <!-- Sakura petals — generated by JS -->
+  </div>
+
+  <!-- =====================================================
+       PAGE SHELL
+       ===================================================== -->
+  <div class="shell">
+
+    <!-- HEADER -->
+    <header>
+      <div class="logo-group">
+        <div class="logo-kanji">波動</div>
+        <div>
+          <div class="logo-text"><span>Pump</span>Radar.space</div>
+          <div style="font-size:0.6rem;letter-spacing:2px;color:var(--text-muted);margin-top:2px;">CRYPTO PULSE · ART VISION</div>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <div class="header-stat">
+          <strong id="header-vol">$2.84B</strong>
+          24H VOLUME
+        </div>
+        <div class="header-stat">
+          <strong id="header-pumps">12</strong>
+          ACTIVE PUMPS
+        </div>
+        <div class="header-stat">
+          <strong id="header-whales">7</strong>
+          WHALE ALERTS
+        </div>
+        <div class="live-badge">
+          <div class="live-dot"></div>
+          LIVE
+        </div>
+      </div>
+    </header>
+
+    <!-- TICKER TAPE -->
+    <div class="ticker-wrap" id="tickerWrap">
+      <div class="ticker-track" id="tickerTrack"></div>
+    </div>
+
+    <!-- FILTER BAR -->
+    <div class="filter-bar">
+      <span class="filter-label">View</span>
+      <button class="filter-btn f-all active" data-filter="all">All Tokens</button>
+      <button class="filter-btn f-pump" data-filter="pump">🌊 Pump Only</button>
+      <button class="filter-btn f-whale" data-filter="whale">🐋 Whale Only</button>
+      <button class="filter-btn" data-filter="both">⚡ Pump + Whale</button>
+
+      <div class="legend">
+        <div class="legend-item"><div class="legend-icon legend-pump"></div>Pump Active</div>
+        <div class="legend-item"><div class="legend-icon legend-whale"></div>Whale Alert</div>
+        <div class="legend-item"><div class="legend-icon legend-both"></div>Both Signals</div>
+      </div>
+    </div>
+
+    <!-- SECTION HEADER -->
+    <div class="section-header">
+      <div class="section-title">Token Radar</div>
+      <div class="section-kanji">市場波動</div>
+      <div class="section-count" id="visibleCount">Showing 7 tokens</div>
+    </div>
+
+    <!-- TOKEN GRID -->
+    <div class="token-grid" id="tokenGrid"></div>
+
+    <!-- FOOTER -->
+    <footer>
+      <div class="footer-left">
+        <span>波動</span> PumpRadar.space — Crypto as Living Art
+      </div>
+      <div class="footer-right">
+        Data is simulated for prototype purposes · Not financial advice
+      </div>
+    </footer>
+
+  </div><!-- /shell -->
+
+  <!-- =====================================================
+       JAVASCRIPT
+       ===================================================== -->
+  <script>
+    /* =====================================================
+       TOKEN DATA
+       ===================================================== */
+    const TOKENS = [
+      {
+        sym: 'SOL',
+        name: 'Solana',
+        chain: 'Solana',
+        price: '$148.32',
+        change: '+14.7%',
+        changePos: true,
+        pump: true,
+        whale: false,
+        vol: '82%',
+        volRaw: 82,
+        mcap: '$68.1B',
+        txns: '4,821',
+        color: '#9945ff',
+        color2: '#00f5d4',
+        artKanji: '速',   // speed
+        description: 'Murakami bloom — rapid ascent',
+      },
+      {
+        sym: 'ETH',
+        name: 'Ethereum',
+        chain: 'Ethereum',
+        price: '$3,420.10',
+        change: '-1.2%',
+        changePos: false,
+        pump: false,
+        whale: true,
+        vol: '91%',
+        volRaw: 91,
+        mcap: '$410.2B',
+        txns: '12,044',
+        color: '#e8c36a',
+        color2: '#f5dfa0',
+        artKanji: '鯨',   // whale
+        description: 'Kintsugi gold — ancient power',
+      },
+      {
+        sym: 'BNB',
+        name: 'BNB Chain',
+        chain: 'BSC',
+        price: '$412.88',
+        change: '+9.3%',
+        changePos: true,
+        pump: true,
+        whale: true,
+        vol: '95%',
+        volRaw: 95,
+        mcap: '$63.5B',
+        txns: '7,230',
+        color: '#f0a8c0',
+        color2: '#b14aed',
+        artKanji: '爆',   // explosion
+        description: 'Neo Ukiyo-e storm — dual signal',
+      },
+      {
+        sym: 'ADA',
+        name: 'Cardano',
+        chain: 'Cardano',
+        price: '$0.4821',
+        change: '+0.3%',
+        changePos: true,
+        pump: false,
+        whale: false,
+        vol: '21%',
+        volRaw: 21,
+        mcap: '$17.1B',
+        txns: '892',
+        color: '#3a7bd5',
+        color2: '#0093a8',
+        artKanji: '静',   // stillness
+        description: 'Quiet waters — no signals',
+      },
+      {
+        sym: 'DOGE',
+        name: 'Dogecoin',
+        chain: 'Dogecoin',
+        price: '$0.1340',
+        change: '+22.1%',
+        changePos: true,
+        pump: true,
+        whale: false,
+        vol: '76%',
+        volRaw: 76,
+        mcap: '$19.4B',
+        txns: '6,015',
+        color: '#f5c542',
+        color2: '#f0a8c0',
+        artKanji: '狗',   // dog
+        description: 'Sakura bloom — community pump',
+      },
+      {
+        sym: 'AVAX',
+        name: 'Avalanche',
+        chain: 'Avalanche',
+        price: '$37.90',
+        change: '+5.8%',
+        changePos: true,
+        pump: true,
+        whale: true,
+        vol: '88%',
+        volRaw: 88,
+        mcap: '$15.7B',
+        txns: '3,401',
+        color: '#e84142',
+        color2: '#f0a8c0',
+        artKanji: '雪',   // snow/avalanche
+        description: 'Red mountain — dual signal',
+      },
+      {
+        sym: 'LINK',
+        name: 'Chainlink',
+        chain: 'Ethereum',
+        price: '$14.62',
+        change: '-0.7%',
+        changePos: false,
+        pump: false,
+        whale: true,
+        vol: '55%',
+        volRaw: 55,
+        mcap: '$8.6B',
+        txns: '2,190',
+        color: '#e8c36a',
+        color2: '#3a7bd5',
+        artKanji: '鎖',   // chain
+        description: 'Kintsugi veins — whale observed',
+      },
+    ];
+
+    /* =====================================================
+       POLKA DOT SVG GENERATOR (Kusama-inspired)
+       ===================================================== */
+    function makePolkaSVG(color) {
+      const dots = [];
+      const cols = 8, rows = 4;
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const cx = (c / cols * 100) + (100 / cols / 2);
+          const cy = (r / rows * 100) + (100 / rows / 2);
+          const r2 = 2 + Math.random() * 3.5;
+          dots.push(`<circle cx="${cx}%" cy="${cy}%" r="${r2}" fill="${color}" opacity="${0.3 + Math.random() * 0.5}"/>`);
+        }
+      }
+      return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 50'%3E${dots.join('')}%3C/svg%3E`;
+    }
+
+    /* =====================================================
+       KINTSUGI SVG OVERLAY (per card)
+       ===================================================== */
+    function makeKintsugiSVG(color) {
+      return `
+        <svg class="kintsugi-overlay" viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0,120 Q60,80 100,140 T200,100 T320,130" stroke="${color}" stroke-width="1" fill="none" opacity="0.5"/>
+          <path d="M80,0 Q90,60 60,100 Q40,140 80,200"     stroke="${color}" stroke-width="0.7" fill="none" opacity="0.4"/>
+          <path d="M200,200 Q220,140 260,100 Q290,70 320,80" stroke="${color}" stroke-width="0.8" fill="none" opacity="0.35"/>
+        </svg>`;
+    }
+
+    /* =====================================================
+       RENDER TOKEN CARD
+       ===================================================== */
+    function renderCard(token, index) {
+      const classes = ['token-card'];
+      if (token.pump)  classes.push('is-pump');
+      if (token.whale) classes.push('is-whale');
+
+      const bloomColor = token.pump && token.whale ? token.color2 : token.pump ? '#00f5d4' : '#e8c36a';
+      const volColor   = token.pump && token.whale
+        ? 'linear-gradient(90deg, var(--neon-cyan), var(--gold))'
+        : token.pump ? 'var(--neon-cyan)' : token.whale ? 'var(--gold)' : 'rgba(255,255,255,0.15)';
+
+      const pumpRings = token.pump
+        ? `<div class="pump-ring"></div><div class="pump-ring"></div><div class="pump-ring"></div>`
+        : '';
+      const whaleShimmer = token.whale ? `<div class="whale-shimmer"></div>` : '';
+
+      const pumpTag  = token.pump  ? `<div class="tag tag-pump">🌊 Pump</div>` : '';
+      const whaleTag = token.whale ? `<div class="tag tag-whale">🐋 Whale</div>` : '';
+      const quietTag = (!token.pump && !token.whale) ? `<div class="tag tag-quiet">静 Quiet</div>` : '';
+
+      const tooltipHtml = `
+        <div class="card-tooltip">
+          <div class="tooltip-row"><span class="tooltip-key">Token</span><span class="tooltip-val">${token.name} (${token.sym})</span></div>
+          <div class="tooltip-row"><span class="tooltip-key">Price</span><span class="tooltip-val">${token.price}</span></div>
+          <div class="tooltip-row"><span class="tooltip-key">Change</span><span class="tooltip-val" style="color:${token.changePos ? 'var(--neon-cyan)' : 'var(--sakura)'}">${token.change}</span></div>
+          <div class="tooltip-row"><span class="tooltip-key">Signal</span><span class="tooltip-val">${token.description}</span></div>
+        </div>`;
+
+      const html = `
+        <div class="${classes.join(' ')}" data-pump="${token.pump}" data-whale="${token.whale}" data-sym="${token.sym}" style="animation-delay:${index * 0.08}s">
+          ${pumpRings}
+          ${whaleShimmer}
+          ${makeKintsugiSVG(bloomColor)}
+          ${tooltipHtml}
+
+          <div class="card-art">
+            <div class="polka-bg" style="background-image:url('${makePolkaSVG(token.color)}');background-size:cover;"></div>
+            <div class="glyph-bloom" style="background:radial-gradient(circle, ${token.color} 0%, transparent 70%);"></div>
+            <div class="token-glyph" style="color:${token.color};text-shadow:0 0 30px ${token.color}88,0 0 60px ${token.color}44;">${token.artKanji}</div>
+          </div>
+
+          <div class="card-divider"></div>
+
+          <div class="card-meta">
+            <div>
+              <div class="token-name" style="color:${token.color};">${token.sym}</div>
+              <div class="token-chain">${token.chain}</div>
+            </div>
+            <div class="token-price-block">
+              <div class="token-price">${token.price}</div>
+              <div class="token-change ${token.changePos ? 'pos' : 'neg'}">${token.change}</div>
+            </div>
+          </div>
+
+          <div class="card-tags">
+            ${pumpTag}${whaleTag}${quietTag}
+          </div>
+
+          <div class="card-stats">
+            <div class="stat-cell">
+              <div class="stat-label">Market Cap</div>
+              <div class="stat-value">${token.mcap}</div>
+            </div>
+            <div class="stat-cell">
+              <div class="stat-label">24H Txns</div>
+              <div class="stat-value">${token.txns}</div>
+            </div>
+          </div>
+
+          <div class="vol-bar-wrap">
+            <div class="vol-bar-label">
+              <span>Volume Activity</span>
+              <span style="color:${token.pump || token.whale ? bloomColor : 'var(--text-muted)'};">${token.vol}</span>
+            </div>
+            <div class="vol-bar-track">
+              <div class="vol-bar-fill" data-vol="${token.volRaw}" style="width:0%;background:${volColor};"></div>
+            </div>
+          </div>
+        </div>`;
+      return html;
+    }
+
+    /* =====================================================
+       TICKER TAPE
+       ===================================================== */
+    function buildTicker() {
+      const track = document.getElementById('tickerTrack');
+      // Duplicate for seamless loop
+      let html = '';
+      for (let pass = 0; pass < 2; pass++) {
+        TOKENS.forEach(t => {
+          const c = t.changePos ? 'var(--neon-cyan)' : 'var(--sakura)';
+          html += `<div class="ticker-item">
+            <span class="ticker-sym">${t.sym}</span>
+            <span>${t.price}</span>
+            <span style="color:${c};">${t.change}</span>
+            <span class="ticker-sep">·</span>
+            ${t.pump  ? '<span style="color:var(--neon-cyan)">🌊</span>' : ''}
+            ${t.whale ? '<span style="color:var(--gold)">🐋</span>' : ''}
+            <span class="ticker-sep">|</span>
+          </div>`;
+        });
+      }
+      track.innerHTML = html;
+    }
+
+    /* =====================================================
+       RENDER GRID
+       ===================================================== */
+    function renderGrid(filter = 'all') {
+      const grid = document.getElementById('tokenGrid');
+      let filtered = TOKENS;
+
+      if (filter === 'pump')  filtered = TOKENS.filter(t => t.pump && !t.whale);
+      if (filter === 'whale') filtered = TOKENS.filter(t => t.whale && !t.pump);
+      if (filter === 'both')  filtered = TOKENS.filter(t => t.pump && t.whale);
+
+      grid.innerHTML = filtered.map((t, i) => renderCard(t, i)).join('');
+
+      document.getElementById('visibleCount').textContent = `Showing ${filtered.length} token${filtered.length !== 1 ? 's' : ''}`;
+
+      // Animate volume bars after render
+      requestAnimationFrame(() => {
+        document.querySelectorAll('.vol-bar-fill').forEach(el => {
+          const v = el.getAttribute('data-vol');
+          setTimeout(() => { el.style.width = v + '%'; }, 200);
+        });
+      });
+    }
+
+    /* =====================================================
+       FILTER BUTTONS
+       ===================================================== */
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderGrid(btn.dataset.filter);
+      });
+    });
+
+    /* =====================================================
+       SAKURA PETAL SPAWNER
+       ===================================================== */
+    function spawnPetals() {
+      const canvas = document.querySelector('.bg-canvas');
+      for (let i = 0; i < 18; i++) {
+        const petal = document.createElement('div');
+        petal.className = 'petal';
+        const hue = Math.random() > 0.5 ? 'var(--sakura)' : 'var(--gold)';
+        petal.style.cssText = `
+          left: ${Math.random() * 100}%;
+          top: ${Math.random() * -10}%;
+          width: ${5 + Math.random() * 7}px;
+          height: ${5 + Math.random() * 7}px;
+          background: ${hue};
+          opacity: 0;
+          animation-duration: ${12 + Math.random() * 18}s;
+          animation-delay: ${Math.random() * 15}s;
+        `;
+        canvas.appendChild(petal);
+      }
+    }
+
+    /* =====================================================
+       SIMULATE LIVE DATA FLICKER (header stats)
+       ===================================================== */
+    function flickerStats() {
+      const vols  = ['$2.84B','$2.91B','$2.78B','$3.02B','$2.96B'];
+      const pumps = [12,13,11,14,12,10,15];
+      const whales = [7,8,6,9,7,8];
+
+      setInterval(() => {
+        document.getElementById('header-vol').textContent    = vols[Math.floor(Math.random()*vols.length)];
+        document.getElementById('header-pumps').textContent  = pumps[Math.floor(Math.random()*pumps.length)];
+        document.getElementById('header-whales').textContent = whales[Math.floor(Math.random()*whales.length)];
+      }, 3500);
+    }
+
+    /* =====================================================
+       INIT
+       ===================================================== */
+    buildTicker();
+    renderGrid('all');
+    spawnPetals();
+    flickerStats();
+  </script>
+
+</body>
+</html>

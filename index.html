@@ -3,960 +3,932 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PumpRadar.space \u2014 \u6ce2 Crypto Art Dashboard</title>
+  <title>PumpRadar.space — 波 Crypto Art Dashboard</title>
   <style>
-    /* ===================================================
-       DESIGN SYSTEM \u2014 PumpRadar.space
-       Aesthetic: Neo Ukiyo-e \u00d7 Murakami Pop \u00d7 Dark Tech
-       =================================================== */
     @import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;700;800&family=Space+Mono:wght@400;700&display=swap');
 
     :root {
-      --bg-void:        #050508;
-      --bg-surface:     #0b0b12;
-      --bg-card:        #10101c;
-      --bg-card-hover:  #14142a;
-      --gold:           #e8c36a;
-      --gold-light:     #f5dfa0;
-      --gold-glow:      rgba(232,195,106,0.4);
-      --sakura:         #f0a8c0;
-      --sakura-glow:    rgba(240,168,192,0.35);
-      --neon-cyan:      #00f5d4;
-      --neon-cyan-glow: rgba(0,245,212,0.3);
-      --neon-violet:    #b14aed;
-      --neon-violet-glow: rgba(177,74,237,0.3);
-      --wave-blue:      #3a7bd5;
-      --wave-teal:      #0093a8;
-      --text-primary:   #f0ede8;
-      --text-secondary: #9893a8;
-      --text-muted:     #4e4a60;
-      --border-subtle:  rgba(255,255,255,0.06);
-      --border-card:    rgba(255,255,255,0.09);
-      --font-display:   'Shippori Mincho', serif;
-      --font-mono:      'Space Mono', monospace;
-      --radius-sm:      6px;
-      --radius-md:      12px;
-      --radius-lg:      20px;
-      --radius-pill:    999px;
+      --bg-void:#050508; --bg-surface:#0b0b12; --bg-card:#10101c; --bg-card-hover:#14142a;
+      --gold:#e8c36a; --gold-light:#f5dfa0; --gold-glow:rgba(232,195,106,0.4);
+      --sakura:#f0a8c0; --sakura-glow:rgba(240,168,192,0.35);
+      --neon-cyan:#00f5d4; --neon-cyan-glow:rgba(0,245,212,0.3);
+      --neon-violet:#b14aed; --neon-violet-glow:rgba(177,74,237,0.3);
+      --wave-blue:#3a7bd5; --wave-teal:#0093a8;
+      --text-primary:#f0ede8; --text-secondary:#9893a8; --text-muted:#4e4a60;
+      --border-subtle:rgba(255,255,255,0.06); --border-card:rgba(255,255,255,0.09);
+      --font-display:'Shippori Mincho',serif; --font-mono:'Space Mono',monospace;
+      --radius-sm:6px; --radius-md:12px; --radius-lg:20px; --radius-pill:999px;
     }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{background:var(--bg-void);color:var(--text-primary);font-family:var(--font-mono);min-height:100vh;overflow-x:hidden;position:relative}
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body {
-      background: var(--bg-void);
-      color: var(--text-primary);
-      font-family: var(--font-mono);
-      min-height: 100vh;
-      overflow-x: hidden;
-      position: relative;
-    }
+    /* BACKGROUND */
+    .bg-canvas{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+    .bg-canvas::before{content:'';position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");opacity:0.4}
+    .bg-canvas svg.kv{position:absolute;inset:0;width:100%;height:100%;opacity:0.07}
+    .orb{position:absolute;border-radius:50%;filter:blur(80px);animation:orb-drift linear infinite;opacity:0}
+    .orb-1{width:500px;height:500px;background:radial-gradient(circle,var(--neon-violet) 0%,transparent 70%);top:-150px;right:-100px;animation-duration:22s}
+    .orb-2{width:400px;height:400px;background:radial-gradient(circle,var(--wave-blue) 0%,transparent 70%);bottom:-100px;left:-80px;animation-duration:28s;animation-delay:-8s}
+    .orb-3{width:300px;height:300px;background:radial-gradient(circle,var(--sakura) 0%,transparent 70%);top:40%;left:50%;animation-duration:18s;animation-delay:-5s}
+    @keyframes orb-drift{0%{opacity:0;transform:translate(0,0) scale(1)}15%{opacity:.12}50%{opacity:.18;transform:translate(30px,-40px) scale(1.08)}85%{opacity:.12}100%{opacity:0;transform:translate(0,0) scale(1)}}
+    .petal{position:absolute;width:8px;height:8px;border-radius:50% 0 50% 0;opacity:0;animation:petal-fall linear infinite}
+    @keyframes petal-fall{0%{opacity:0;transform:translateY(-20px) rotate(0deg)}10%{opacity:.6}90%{opacity:.2}100%{opacity:0;transform:translateY(110vh) rotate(720deg) translateX(80px)}}
 
-    /* ===================================================
-       AMBIENT BACKGROUND
-       =================================================== */
-    .bg-canvas {
-      position: fixed; inset: 0;
-      pointer-events: none; z-index: 0; overflow: hidden;
-    }
-    .bg-canvas::before {
-      content: ''; position: absolute; inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-      opacity: 0.4;
-    }
-    .bg-canvas svg.kintsugi-veins {
-      position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.07;
-    }
-    .orb { position: absolute; border-radius: 50%; filter: blur(80px); animation: orb-drift linear infinite; opacity: 0; }
-    .orb-1 { width: 500px; height: 500px; background: radial-gradient(circle, var(--neon-violet) 0%, transparent 70%); top: -150px; right: -100px; animation-duration: 22s; }
-    .orb-2 { width: 400px; height: 400px; background: radial-gradient(circle, var(--wave-blue) 0%, transparent 70%); bottom: -100px; left: -80px; animation-duration: 28s; animation-delay: -8s; }
-    .orb-3 { width: 300px; height: 300px; background: radial-gradient(circle, var(--sakura) 0%, transparent 70%); top: 40%; left: 50%; animation-duration: 18s; animation-delay: -5s; }
-    @keyframes orb-drift {
-      0%   { opacity: 0;    transform: translate(0px,0px) scale(1); }
-      15%  { opacity: 0.12; }
-      50%  { opacity: 0.18; transform: translate(30px,-40px) scale(1.08); }
-      85%  { opacity: 0.12; }
-      100% { opacity: 0;    transform: translate(0px,0px) scale(1); }
-    }
-    .petal { position: absolute; width: 8px; height: 8px; border-radius: 50% 0 50% 0; background: var(--sakura); opacity: 0; animation: petal-fall linear infinite; }
-    @keyframes petal-fall {
-      0%   { opacity: 0;   transform: translateY(-20px) rotate(0deg); }
-      10%  { opacity: 0.6; }
-      90%  { opacity: 0.2; }
-      100% { opacity: 0;   transform: translateY(110vh) rotate(720deg) translateX(80px); }
-    }
+    /* NAV */
+    .topnav{position:sticky;top:0;z-index:100;background:rgba(5,5,8,.88);backdrop-filter:blur(18px);border-bottom:1px solid var(--border-subtle);padding:0 24px}
+    .topnav-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:56px}
+    .nav-logo{font-family:var(--font-display);font-size:1.1rem;font-weight:800;color:var(--gold);letter-spacing:3px;text-shadow:0 0 20px var(--gold-glow);cursor:pointer;user-select:none}
+    .nav-links{display:flex;gap:4px}
+    .nav-link{padding:7px 14px;border-radius:var(--radius-pill);font-size:.7rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);background:transparent;border:none;cursor:pointer;font-family:var(--font-mono);transition:color .2s,background .2s}
+    .nav-link:hover{color:var(--text-primary);background:rgba(255,255,255,.05)}
+    .nav-link.active{color:var(--gold);background:rgba(232,195,106,.08)}
+    .nav-live{display:flex;align-items:center;gap:7px;font-size:.65rem;letter-spacing:2px;color:var(--neon-cyan)}
+    .nav-live-dot{width:6px;height:6px;border-radius:50%;background:var(--neon-cyan);box-shadow:0 0 8px var(--neon-cyan);animation:blink 1.4s ease-in-out infinite}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+    .nav-hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:4px}
+    .nav-hamburger span{display:block;width:22px;height:2px;background:var(--text-secondary);border-radius:2px;transition:all .3s}
+    .mobile-menu{display:none;flex-direction:column;background:rgba(10,10,18,.97);border-bottom:1px solid var(--border-subtle);padding:12px 24px 20px}
+    .mobile-menu.open{display:flex}
+    .mobile-menu .nav-link{text-align:left;padding:12px 8px;border-bottom:1px solid var(--border-subtle)}
+    @media(max-width:640px){.nav-links,.nav-live{display:none}.nav-hamburger{display:flex}}
 
-    /* ===================================================
-       NAV BAR
-       =================================================== */
-    .topnav {
-      position: sticky; top: 0; z-index: 100;
-      background: rgba(5,5,8,0.85);
-      backdrop-filter: blur(18px);
-      border-bottom: 1px solid var(--border-subtle);
-      padding: 0 24px;
-    }
-    .topnav-inner {
-      max-width: 1280px; margin: 0 auto;
-      display: flex; align-items: center; justify-content: space-between;
-      height: 56px;
-    }
-    .nav-logo {
-      font-family: var(--font-display);
-      font-size: 1.1rem; font-weight: 800;
-      color: var(--gold); letter-spacing: 3px;
-      text-shadow: 0 0 20px var(--gold-glow);
-      cursor: pointer; user-select: none;
-    }
-    .nav-links {
-      display: flex; gap: 4px; align-items: center;
-    }
-    .nav-link {
-      padding: 7px 14px;
-      border-radius: var(--radius-pill);
-      font-size: 0.7rem; letter-spacing: 1.5px; text-transform: uppercase;
-      color: var(--text-muted); background: transparent; border: none;
-      cursor: pointer; font-family: var(--font-mono);
-      transition: color 0.2s, background 0.2s;
-    }
-    .nav-link:hover { color: var(--text-primary); background: rgba(255,255,255,0.05); }
-    .nav-link.active { color: var(--gold); background: rgba(232,195,106,0.08); }
-    .nav-live {
-      display: flex; align-items: center; gap: 7px;
-      font-size: 0.65rem; letter-spacing: 2px; color: var(--neon-cyan);
-    }
-    .nav-live-dot {
-      width: 6px; height: 6px; border-radius: 50%;
-      background: var(--neon-cyan); box-shadow: 0 0 8px var(--neon-cyan);
-      animation: blink 1.4s ease-in-out infinite;
-    }
-    /* Hamburger for mobile */
-    .nav-hamburger {
-      display: none; flex-direction: column; gap: 5px; cursor: pointer;
-      background: none; border: none; padding: 4px;
-    }
-    .nav-hamburger span {
-      display: block; width: 22px; height: 2px;
-      background: var(--text-secondary); border-radius: 2px;
-      transition: all 0.3s ease;
-    }
-    .mobile-menu {
-      display: none; flex-direction: column;
-      background: rgba(10,10,18,0.97); border-bottom: 1px solid var(--border-subtle);
-      padding: 12px 24px 20px;
-    }
-    .mobile-menu.open { display: flex; }
-    .mobile-menu .nav-link { text-align: left; padding: 12px 8px; border-bottom: 1px solid var(--border-subtle); }
+    /* SHELL */
+    .shell{position:relative;z-index:1;max-width:1280px;margin:0 auto;padding:0 24px 80px}
+    .page-section{display:none}
+    .page-section.active{display:block}
 
-    @media (max-width: 640px) {
-      .nav-links { display: none; }
-      .nav-live  { display: none; }
-      .nav-hamburger { display: flex; }
-    }
+    /* DASHBOARD HEADER */
+    header{display:flex;align-items:center;justify-content:space-between;padding:32px 0 40px;border-bottom:1px solid var(--border-subtle);flex-wrap:wrap;gap:20px}
+    .logo-group{display:flex;align-items:baseline;gap:16px}
+    .logo-kanji{font-family:var(--font-display);font-size:2.2rem;font-weight:800;color:var(--gold);letter-spacing:4px;animation:kanji-pulse 4s ease-in-out infinite}
+    @keyframes kanji-pulse{0%,100%{text-shadow:0 0 30px var(--gold-glow),0 0 60px rgba(232,195,106,.15)}50%{text-shadow:0 0 50px var(--gold-glow),0 0 100px rgba(232,195,106,.25)}}
+    .logo-text{font-family:var(--font-mono);font-size:.85rem;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--text-secondary)}
+    .logo-text span{color:var(--neon-cyan)}
+    .header-right{display:flex;align-items:center;gap:24px}
+    .live-badge{display:flex;align-items:center;gap:8px;padding:6px 14px;border-radius:var(--radius-pill);border:1px solid rgba(0,245,212,.25);background:rgba(0,245,212,.06);font-size:.72rem;letter-spacing:2px;color:var(--neon-cyan);text-transform:uppercase}
+    .live-dot{width:7px;height:7px;border-radius:50%;background:var(--neon-cyan);box-shadow:0 0 8px var(--neon-cyan);animation:blink 1.4s ease-in-out infinite}
+    .header-stat{font-size:.72rem;color:var(--text-muted);letter-spacing:1px}
+    .header-stat strong{color:var(--gold);display:block;font-size:1rem}
 
-    /* ===================================================
-       LAYOUT SHELL
-       =================================================== */
-    .shell {
-      position: relative; z-index: 1;
-      max-width: 1280px; margin: 0 auto;
-      padding: 0 24px 80px;
-    }
+    /* FILTER BAR */
+    .filter-bar{display:flex;align-items:center;gap:12px;padding:28px 0 24px;flex-wrap:wrap}
+    .filter-label{font-size:.68rem;letter-spacing:3px;color:var(--text-muted);text-transform:uppercase;margin-right:4px}
+    .filter-btn{cursor:pointer;padding:7px 18px;border-radius:var(--radius-pill);border:1px solid var(--border-card);background:transparent;color:var(--text-secondary);font-family:var(--font-mono);font-size:.72rem;letter-spacing:1.5px;text-transform:uppercase;transition:all .25s}
+    .filter-btn:hover,.filter-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(232,195,106,.07);box-shadow:0 0 16px rgba(232,195,106,.12)}
+    .filter-btn.f-pump.active{border-color:var(--neon-cyan);color:var(--neon-cyan);background:rgba(0,245,212,.07);box-shadow:0 0 16px var(--neon-cyan-glow)}
+    .filter-btn.f-all.active{border-color:var(--sakura);color:var(--sakura);background:rgba(240,168,192,.07);box-shadow:0 0 16px var(--sakura-glow)}
+    .legend{display:flex;gap:18px;margin-left:auto;flex-wrap:wrap}
+    .legend-item{display:flex;align-items:center;gap:7px;font-size:.68rem;letter-spacing:1px;color:var(--text-muted);text-transform:uppercase}
+    .legend-icon{width:10px;height:10px;border-radius:50%}
+    .legend-pump{background:var(--neon-cyan);box-shadow:0 0 8px var(--neon-cyan)}
+    .legend-whale{background:var(--gold);box-shadow:0 0 8px var(--gold-glow)}
+    .legend-both{background:linear-gradient(135deg,var(--neon-cyan),var(--gold))}
 
-    /* Page sections \u2014 shown/hidden by JS */
-    .page-section { display: none; }
-    .page-section.active { display: block; }
+    /* TOKEN GRID */
+    .token-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px}
+    .token-card{position:relative;background:var(--bg-card);border:1px solid var(--border-card);border-radius:var(--radius-lg);padding:24px;cursor:pointer;overflow:hidden;transition:transform .3s,border-color .3s,box-shadow .3s,background .3s;animation:card-enter .6s ease both}
+    @keyframes card-enter{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+    .token-card::before{content:'';position:absolute;inset:0;border-radius:var(--radius-lg);opacity:0;transition:opacity .4s;pointer-events:none}
+    .token-card:hover{transform:translateY(-4px) scale(1.015);background:var(--bg-card-hover)}
+    .kintsugi-overlay{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .5s}
+    .token-card:hover .kintsugi-overlay{opacity:1}
+    .token-card.is-pump{border-color:rgba(0,245,212,.22)}
+    .token-card.is-pump::before{background:radial-gradient(ellipse at 50% 110%,rgba(0,245,212,.1) 0%,transparent 70%);opacity:1}
+    .token-card.is-pump:hover{border-color:var(--neon-cyan);box-shadow:0 8px 48px rgba(0,245,212,.18),0 0 0 1px rgba(0,245,212,.15)}
+    .pump-ring{position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:200px;height:200px;border-radius:50%;border:1.5px solid rgba(0,245,212,.3);animation:pump-expand 2.8s ease-out infinite;pointer-events:none}
+    .pump-ring:nth-child(2){animation-delay:.9s}
+    .pump-ring:nth-child(3){animation-delay:1.8s}
+    @keyframes pump-expand{0%{transform:translateX(-50%) scale(.4);opacity:.7}100%{transform:translateX(-50%) scale(2.2);opacity:0}}
+    .token-card.is-whale{border-color:rgba(232,195,106,.28)}
+    .token-card.is-whale::before{background:radial-gradient(ellipse at 50% 0%,rgba(232,195,106,.12) 0%,transparent 65%);opacity:1}
+    .token-card.is-whale:hover{border-color:var(--gold);box-shadow:0 8px 48px rgba(232,195,106,.2),0 0 0 1px rgba(232,195,106,.18)}
+    .whale-shimmer{position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(105deg,transparent 30%,rgba(232,195,106,.1) 50%,transparent 70%);animation:shimmer-sweep 3.5s ease-in-out infinite;pointer-events:none}
+    @keyframes shimmer-sweep{0%{left:-100%}40%{left:150%}100%{left:150%}}
+    .token-card.is-pump.is-whale{border-color:rgba(177,74,237,.3)}
+    .token-card.is-pump.is-whale::before{background:conic-gradient(from 180deg at 50% 110%,rgba(0,245,212,.12),rgba(232,195,106,.12),rgba(240,168,192,.12),rgba(177,74,237,.12),rgba(0,245,212,.12));opacity:1}
+    .token-card.is-pump.is-whale:hover{border-color:var(--sakura);box-shadow:0 8px 48px rgba(177,74,237,.2),0 0 0 1px rgba(177,74,237,.2)}
+    .card-art{position:relative;width:100%;height:96px;margin-bottom:20px;display:flex;align-items:center;justify-content:center}
+    .token-glyph{font-family:var(--font-display);font-size:2.8rem;font-weight:800;position:relative;z-index:2;transition:transform .35s;line-height:1}
+    .token-card:hover .token-glyph{transform:scale(1.12)}
+    .glyph-bloom{position:absolute;width:80px;height:80px;border-radius:50%;filter:blur(22px);z-index:1;opacity:.5;transition:opacity .4s,transform .4s}
+    .token-card:hover .glyph-bloom{opacity:.85;transform:scale(1.4)}
+    .polka-bg{position:absolute;inset:0;border-radius:var(--radius-md);overflow:hidden;opacity:.08;transition:opacity .4s}
+    .token-card:hover .polka-bg{opacity:.18}
+    .card-divider{width:100%;height:1px;background:var(--border-subtle);margin:0 0 16px;position:relative;overflow:hidden}
+    .card-divider::after{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0;transition:opacity .3s,left 0s}
+    .token-card:hover .card-divider::after{left:150%;opacity:.6;transition:left .7s ease,opacity .3s}
+    .card-meta{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+    .token-name{font-family:var(--font-display);font-size:1.3rem;font-weight:700;letter-spacing:1px}
+    .token-chain{font-size:.65rem;letter-spacing:2.5px;color:var(--text-muted);text-transform:uppercase;margin-top:3px}
+    .token-price-block{text-align:right}
+    .token-price{font-size:1.1rem;font-weight:700;letter-spacing:.5px}
+    .token-change{font-size:.72rem;letter-spacing:1px;margin-top:3px}
+    .token-change.pos{color:var(--neon-cyan)}
+    .token-change.neg{color:var(--sakura)}
+    .card-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+    .tag{padding:4px 12px;border-radius:var(--radius-pill);font-size:.65rem;letter-spacing:2px;text-transform:uppercase;font-weight:700;border:1px solid}
+    .tag-pump{color:var(--neon-cyan);border-color:rgba(0,245,212,.4);background:rgba(0,245,212,.08)}
+    .tag-whale{color:var(--gold);border-color:rgba(232,195,106,.4);background:rgba(232,195,106,.08)}
+    .tag-quiet{color:var(--text-muted);border-color:var(--border-subtle);background:transparent}
+    .card-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .stat-cell{background:rgba(255,255,255,.025);border-radius:var(--radius-sm);padding:8px 10px;border:1px solid var(--border-subtle)}
+    .stat-label{font-size:.6rem;letter-spacing:2px;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px}
+    .stat-value{font-size:.82rem;font-weight:700;letter-spacing:.5px}
+    .vol-bar-wrap{margin-top:14px}
+    .vol-bar-label{display:flex;justify-content:space-between;font-size:.62rem;letter-spacing:2px;color:var(--text-muted);text-transform:uppercase;margin-bottom:6px}
+    .vol-bar-track{width:100%;height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden}
+    .vol-bar-fill{height:100%;border-radius:2px;transition:width 1.2s cubic-bezier(.16,1,.3,1)}
+    .card-tooltip{position:absolute;bottom:calc(100% + 12px);left:50%;transform:translateX(-50%) translateY(6px);background:#1a1a2e;border:1px solid var(--border-card);border-radius:var(--radius-md);padding:12px 16px;font-size:.72rem;color:var(--text-primary);white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .25s,transform .25s;z-index:100;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+    .token-card:hover .card-tooltip{opacity:1;transform:translateX(-50%) translateY(0)}
+    .tooltip-row{display:flex;justify-content:space-between;gap:20px;margin-bottom:4px}
+    .tooltip-key{color:var(--text-muted)}
+    .tooltip-val{font-weight:700}
 
-    /* ===================================================
-       HEADER (Dashboard section)
-       =================================================== */
-    header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 32px 0 40px; border-bottom: 1px solid var(--border-subtle);
-      flex-wrap: wrap; gap: 20px;
-    }
-    .logo-group { display: flex; align-items: baseline; gap: 16px; }
-    .logo-kanji {
-      font-family: var(--font-display); font-size: 2.2rem; font-weight: 800;
-      color: var(--gold); text-shadow: 0 0 30px var(--gold-glow), 0 0 60px rgba(232,195,106,0.15);
-      letter-spacing: 4px; animation: kanji-pulse 4s ease-in-out infinite;
-    }
-    @keyframes kanji-pulse {
-      0%,100% { text-shadow: 0 0 30px var(--gold-glow), 0 0 60px rgba(232,195,106,0.15); }
-      50%      { text-shadow: 0 0 50px var(--gold-glow), 0 0 100px rgba(232,195,106,0.25); }
-    }
-    .logo-text { font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; color: var(--text-secondary); }
-    .logo-text span { color: var(--neon-cyan); }
-    .header-right { display: flex; align-items: center; gap: 24px; }
-    .live-badge {
-      display: flex; align-items: center; gap: 8px; padding: 6px 14px;
-      border-radius: var(--radius-pill); border: 1px solid rgba(0,245,212,0.25);
-      background: rgba(0,245,212,0.06); font-size: 0.72rem; letter-spacing: 2px;
-      color: var(--neon-cyan); text-transform: uppercase;
-    }
-    .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--neon-cyan); box-shadow: 0 0 8px var(--neon-cyan); animation: blink 1.4s ease-in-out infinite; }
-    @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.2; } }
-    .header-stat { font-size: 0.72rem; color: var(--text-muted); letter-spacing: 1px; }
-    .header-stat strong { color: var(--gold); display: block; font-size: 1rem; }
+    /* SECTION HEADER */
+    .section-header{display:flex;align-items:baseline;gap:16px;margin:40px 0 20px}
+    .section-title{font-family:var(--font-display);font-size:1.5rem;font-weight:700;color:var(--text-primary);letter-spacing:2px}
+    .section-kanji{font-family:var(--font-display);font-size:.9rem;color:var(--gold);letter-spacing:4px;opacity:.7}
+    .section-count{margin-left:auto;font-size:.68rem;letter-spacing:2px;color:var(--text-muted);text-transform:uppercase}
 
-    /* ===================================================
-       FILTER BAR
-       =================================================== */
-    .filter-bar { display: flex; align-items: center; gap: 12px; padding: 28px 0 24px; flex-wrap: wrap; }
-    .filter-label { font-size: 0.68rem; letter-spacing: 3px; color: var(--text-muted); text-transform: uppercase; margin-right: 4px; }
-    .filter-btn {
-      cursor: pointer; padding: 7px 18px; border-radius: var(--radius-pill);
-      border: 1px solid var(--border-card); background: transparent;
-      color: var(--text-secondary); font-family: var(--font-mono);
-      font-size: 0.72rem; letter-spacing: 1.5px; text-transform: uppercase;
-      transition: all 0.25s ease;
-    }
-    .filter-btn:hover, .filter-btn.active { border-color: var(--gold); color: var(--gold); background: rgba(232,195,106,0.07); box-shadow: 0 0 16px rgba(232,195,106,0.12); }
-    .filter-btn.f-pump.active  { border-color: var(--neon-cyan); color: var(--neon-cyan); background: rgba(0,245,212,0.07); box-shadow: 0 0 16px var(--neon-cyan-glow); }
-    .filter-btn.f-whale.active { border-color: var(--gold); color: var(--gold); background: rgba(232,195,106,0.07); box-shadow: 0 0 16px var(--gold-glow); }
-    .filter-btn.f-all.active   { border-color: var(--sakura); color: var(--sakura); background: rgba(240,168,192,0.07); box-shadow: 0 0 16px var(--sakura-glow); }
-    .legend { display: flex; gap: 18px; margin-left: auto; flex-wrap: wrap; }
-    .legend-item { display: flex; align-items: center; gap: 7px; font-size: 0.68rem; letter-spacing: 1px; color: var(--text-muted); text-transform: uppercase; }
-    .legend-icon { width: 10px; height: 10px; border-radius: 50%; }
-    .legend-pump  { background: var(--neon-cyan); box-shadow: 0 0 8px var(--neon-cyan); }
-    .legend-whale { background: var(--gold);      box-shadow: 0 0 8px var(--gold-glow); }
-    .legend-both  { background: linear-gradient(135deg, var(--neon-cyan), var(--gold)); box-shadow: 0 0 8px var(--sakura-glow); }
+    /* TICKER */
+    .ticker-wrap{width:100%;overflow:hidden;border-top:1px solid var(--border-subtle);border-bottom:1px solid var(--border-subtle);padding:10px 0;margin-bottom:12px;background:rgba(255,255,255,.015)}
+    .ticker-track{display:flex;gap:48px;white-space:nowrap;animation:ticker-scroll 20s linear infinite}
+    @keyframes ticker-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+    .ticker-item{display:inline-flex;align-items:center;gap:10px;font-size:.72rem;letter-spacing:1px;color:var(--text-secondary)}
+    .ticker-sym{font-weight:700;color:var(--text-primary)}
+    .ticker-sep{color:var(--text-muted)}
 
-    /* ===================================================
-       TOKEN GRID & CARDS
-       =================================================== */
-    .token-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-    .token-card {
-      position: relative; background: var(--bg-card); border: 1px solid var(--border-card);
-      border-radius: var(--radius-lg); padding: 24px; cursor: pointer; overflow: hidden;
-      transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
-      animation: card-enter 0.6s ease both;
-    }
-    @keyframes card-enter { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
-    .token-card::before { content: ''; position: absolute; inset: 0; border-radius: var(--radius-lg); opacity: 0; transition: opacity 0.4s ease; pointer-events: none; }
-    .token-card:hover { transform: translateY(-4px) scale(1.015); background: var(--bg-card-hover); }
-    .kintsugi-overlay { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 0.5s ease; }
-    .token-card:hover .kintsugi-overlay { opacity: 1; }
+    /* PAGE HERO */
+    .page-hero{padding:60px 0 40px;text-align:center;border-bottom:1px solid var(--border-subtle)}
+    .page-hero-tag{display:inline-block;padding:5px 18px;border-radius:var(--radius-pill);border:1px solid rgba(232,195,106,.3);color:var(--gold);font-size:.65rem;letter-spacing:3px;text-transform:uppercase;background:rgba(232,195,106,.06);margin-bottom:24px}
+    .page-hero h1{font-family:var(--font-display);font-size:3rem;font-weight:800;letter-spacing:3px;line-height:1.15;margin-bottom:16px}
+    .page-hero h1 span{color:var(--gold)}
+    .page-hero p{color:var(--text-secondary);font-size:.88rem;line-height:1.8;max-width:640px;margin:0 auto}
 
-    /* Pump state */
-    .token-card.is-pump { border-color: rgba(0,245,212,0.22); }
-    .token-card.is-pump::before { background: radial-gradient(ellipse at 50% 110%, rgba(0,245,212,0.1) 0%, transparent 70%); opacity: 1; }
-    .token-card.is-pump:hover { border-color: var(--neon-cyan); box-shadow: 0 8px 48px rgba(0,245,212,0.18), 0 0 0 1px rgba(0,245,212,0.15); }
-    .pump-ring { position: absolute; top: -60px; left: 50%; transform: translateX(-50%); width: 200px; height: 200px; border-radius: 50%; border: 1.5px solid rgba(0,245,212,0.3); animation: pump-expand 2.8s ease-out infinite; pointer-events: none; }
-    .pump-ring:nth-child(2) { animation-delay: 0.9s; }
-    .pump-ring:nth-child(3) { animation-delay: 1.8s; }
-    @keyframes pump-expand { 0% { transform: translateX(-50%) scale(0.4); opacity: 0.7; } 100% { transform: translateX(-50%) scale(2.2); opacity: 0; } }
+    /* CONTENT BLOCK */
+    .content-block{background:var(--bg-card);border:1px solid var(--border-card);border-radius:var(--radius-lg);padding:32px 36px;margin-bottom:20px;position:relative;overflow:hidden}
+    .content-block::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+    .content-block h2{font-family:var(--font-display);font-size:1.3rem;font-weight:700;color:var(--gold);margin-bottom:14px;letter-spacing:2px;display:flex;align-items:center;gap:12px}
+    .blk-kanji{font-size:1.5rem;opacity:.7}
+    .content-block h3{font-family:var(--font-display);font-size:1rem;font-weight:700;color:var(--neon-cyan);margin:20px 0 10px;letter-spacing:1px}
+    .content-block p{color:var(--text-secondary);font-size:.82rem;line-height:1.85;margin-bottom:12px}
+    .content-block ul{list-style:none;padding:0}
+    .content-block ul li{padding:8px 0;border-bottom:1px solid var(--border-subtle);font-size:.82rem;color:var(--text-secondary);display:flex;align-items:flex-start;gap:10px}
+    .content-block ul li:last-child{border-bottom:none}
+    .content-block ul li::before{content:'▸';color:var(--gold);flex-shrink:0;margin-top:1px}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px}
 
-    /* Whale state */
-    .token-card.is-whale { border-color: rgba(232,195,106,0.28); }
-    .token-card.is-whale::before { background: radial-gradient(ellipse at 50% 0%, rgba(232,195,106,0.12) 0%, transparent 65%); opacity: 1; }
-    .token-card.is-whale:hover { border-color: var(--gold); box-shadow: 0 8px 48px rgba(232,195,106,0.2), 0 0 0 1px rgba(232,195,106,0.18); }
-    .whale-shimmer { position: absolute; top: 0; left: -100%; width: 60%; height: 100%; background: linear-gradient(105deg, transparent 30%, rgba(232,195,106,0.1) 50%, transparent 70%); animation: shimmer-sweep 3.5s ease-in-out infinite; pointer-events: none; }
-    @keyframes shimmer-sweep { 0% { left: -100%; } 40% { left: 150%; } 100% { left: 150%; } }
+    /* HOW TO STEPS */
+    .steps-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-top:20px}
+    .step-card{background:var(--bg-card);border:1px solid var(--border-card);border-radius:var(--radius-lg);padding:24px;position:relative;overflow:hidden;transition:transform .3s,border-color .3s}
+    .step-card:hover{transform:translateY(-4px);border-color:rgba(0,245,212,.3)}
+    .step-num{font-family:var(--font-display);font-size:3rem;font-weight:800;color:rgba(232,195,106,.15);line-height:1;margin-bottom:12px}
+    .step-icon{font-size:1.8rem;margin-bottom:12px;display:block}
+    .step-title{font-family:var(--font-display);font-size:1rem;font-weight:700;color:var(--text-primary);margin-bottom:8px;letter-spacing:1px}
+    .step-desc{font-size:.78rem;color:var(--text-muted);line-height:1.7}
 
-    /* Both */
-    .token-card.is-pump.is-whale { border-color: rgba(177,74,237,0.3); }
-    .token-card.is-pump.is-whale::before { background: conic-gradient(from 180deg at 50% 110%, rgba(0,245,212,0.12), rgba(232,195,106,0.12), rgba(240,168,192,0.12), rgba(177,74,237,0.12), rgba(0,245,212,0.12)); opacity: 1; }
-    .token-card.is-pump.is-whale:hover { border-color: var(--sakura); box-shadow: 0 8px 48px rgba(177,74,237,0.2), 0 0 0 1px rgba(177,74,237,0.2), 0 0 60px rgba(240,168,192,0.1); }
+    /* WHITEPAPER */
+    .wp-toc{background:var(--bg-surface);border:1px solid var(--border-card);border-radius:var(--radius-md);padding:20px 24px;margin-bottom:24px}
+    .wp-toc-title{font-size:.68rem;letter-spacing:3px;color:var(--text-muted);text-transform:uppercase;margin-bottom:14px}
+    .wp-toc a{display:block;padding:6px 0;font-size:.78rem;color:var(--text-secondary);text-decoration:none;border-bottom:1px solid var(--border-subtle);transition:color .2s,padding-left .2s;letter-spacing:.5px}
+    .wp-toc a:last-child{border-bottom:none}
+    .wp-toc a:hover{color:var(--gold);padding-left:8px}
+    .wp-toc a span{color:var(--text-muted);margin-right:10px;font-size:.7rem}
+    .wp-section-id{font-size:.65rem;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:6px}
+    .wp-section h2{font-family:var(--font-display);font-size:1.4rem;font-weight:700;color:var(--text-primary);margin-bottom:14px;letter-spacing:2px}
+    .wp-section p{font-size:.82rem;color:var(--text-secondary);line-height:1.9;margin-bottom:12px}
+    .wp-section h3{font-family:var(--font-display);font-size:1rem;color:var(--neon-cyan);margin:20px 0 10px;font-weight:700}
+    .wp-section hr{border:none;border-top:1px solid var(--border-subtle);margin:24px 0}
+    .tokenomics-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-top:16px}
+    .tknm-cell{background:rgba(255,255,255,.025);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:16px}
+    .tknm-pct{font-family:var(--font-display);font-size:2rem;font-weight:800}
+    .tknm-label{font-size:.68rem;letter-spacing:2px;color:var(--text-muted);text-transform:uppercase;margin-top:4px}
 
-    .card-art { position: relative; width: 100%; height: 96px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; }
-    .token-glyph { font-family: var(--font-display); font-size: 2.8rem; font-weight: 800; letter-spacing: -1px; position: relative; z-index: 2; transition: transform 0.35s ease; line-height: 1; }
-    .token-card:hover .token-glyph { transform: scale(1.12); }
-    .glyph-bloom { position: absolute; width: 80px; height: 80px; border-radius: 50%; filter: blur(22px); z-index: 1; opacity: 0.5; transition: opacity 0.4s ease, transform 0.4s ease; }
-    .token-card:hover .glyph-bloom { opacity: 0.85; transform: scale(1.4); }
-    .polka-bg { position: absolute; inset: 0; border-radius: var(--radius-md); overflow: hidden; opacity: 0.08; transition: opacity 0.4s ease; }
-    .token-card:hover .polka-bg { opacity: 0.18; }
+    /* ROADMAP */
+    .roadmap-timeline{position:relative;padding-left:32px}
+    .roadmap-timeline::before{content:'';position:absolute;left:10px;top:0;bottom:0;width:1px;background:linear-gradient(180deg,var(--gold) 0%,var(--neon-violet) 50%,rgba(255,255,255,.05) 100%)}
+    .rm-phase{position:relative;margin-bottom:36px}
+    .rm-dot{position:absolute;left:-26px;top:4px;width:12px;height:12px;border-radius:50%;border:2px solid var(--gold);background:var(--bg-void)}
+    .rm-phase.active .rm-dot{background:var(--gold);box-shadow:0 0 14px var(--gold-glow)}
+    .rm-phase.upcoming .rm-dot{border-color:var(--neon-cyan);background:var(--bg-void)}
+    .rm-phase.future .rm-dot{border-color:var(--border-subtle);background:var(--bg-void)}
+    .rm-date{font-size:.65rem;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:6px}
+    .rm-phase.upcoming .rm-date{color:var(--neon-cyan)}
+    .rm-phase.future .rm-date{color:var(--text-muted)}
+    .rm-title{font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--text-primary);margin-bottom:10px;letter-spacing:1px}
+    .rm-items{list-style:none;padding:0}
+    .rm-items li{font-size:.78rem;color:var(--text-secondary);padding:5px 0;border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;gap:10px}
+    .rm-items li:last-child{border-bottom:none}
+    .rm-check{flex-shrink:0}
+    .rm-check.done::before{content:'✓';color:var(--neon-cyan)}
+    .rm-check.pending::before{content:'◦';color:var(--text-muted)}
+    .rm-check.now::before{content:'→';color:var(--neon-cyan)}
+    .rm-badge{display:inline-block;padding:3px 10px;border-radius:var(--radius-pill);font-size:.6rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
+    .rm-badge.live{background:rgba(0,245,212,.12);color:var(--neon-cyan);border:1px solid rgba(0,245,212,.3)}
+    .rm-badge.next{background:rgba(232,195,106,.08);color:var(--gold);border:1px solid rgba(232,195,106,.25)}
+    .rm-badge.future{background:rgba(255,255,255,.04);color:var(--text-muted);border:1px solid var(--border-subtle)}
 
-    .card-divider { width: 100%; height: 1px; background: var(--border-subtle); margin: 0 0 16px; position: relative; overflow: hidden; }
-    .card-divider::after { content: ''; position: absolute; top: 0; left: -100%; width: 60%; height: 100%; background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity: 0; transition: opacity 0.3s, left 0s; }
-    .token-card:hover .card-divider::after { left: 150%; opacity: 0.6; transition: left 0.7s ease, opacity 0.3s; }
+    /* ABOUT — TEAM */
+    .team-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;margin-top:20px}
+    .team-card{background:var(--bg-card);border:1px solid var(--border-card);border-radius:var(--radius-lg);padding:24px;text-align:center;transition:transform .3s,border-color .3s}
+    .team-card:hover{transform:translateY(-4px);border-color:rgba(232,195,106,.3)}
+    .team-avatar{width:64px;height:64px;border-radius:50%;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.6rem;font-weight:800;border:2px solid rgba(232,195,106,.2)}
+    .team-name{font-family:var(--font-display);font-size:1rem;font-weight:700;color:var(--text-primary);margin-bottom:4px;letter-spacing:1px}
+    .team-role{font-size:.68rem;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:10px}
+    .team-bio{font-size:.74rem;color:var(--text-muted);line-height:1.6}
+    .team-links{display:flex;justify-content:center;gap:10px;margin-top:14px}
+    .team-link{padding:5px 14px;border-radius:var(--radius-pill);font-size:.65rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--neon-cyan);border:1px solid rgba(0,245,212,.3);background:rgba(0,245,212,.06);text-decoration:none;transition:background .2s}
+    .team-link:hover{background:rgba(0,245,212,.14)}
+    .team-link.gold{color:var(--gold);border-color:rgba(232,195,106,.3);background:rgba(232,195,106,.06)}
+    .team-link.gold:hover{background:rgba(232,195,106,.14)}
 
-    .card-meta { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
-    .token-name { font-family: var(--font-display); font-size: 1.3rem; font-weight: 700; letter-spacing: 1px; }
-    .token-chain { font-size: 0.65rem; letter-spacing: 2.5px; color: var(--text-muted); text-transform: uppercase; margin-top: 3px; }
-    .token-price-block { text-align: right; }
-    .token-price { font-size: 1.1rem; font-weight: 700; letter-spacing: 0.5px; }
-    .token-change { font-size: 0.72rem; letter-spacing: 1px; margin-top: 3px; }
-    .token-change.pos { color: var(--neon-cyan); }
-    .token-change.neg { color: var(--sakura); }
+    /* ORYNTH */
+    .orynth-block{display:flex;align-items:center;gap:24px;flex-wrap:wrap;background:var(--bg-card);border:1px solid rgba(232,195,106,.2);border-radius:var(--radius-lg);padding:28px 32px;margin-top:24px}
+    .orynth-badge-wrap{flex-shrink:0}
+    .orynth-badge-fallback{display:flex;align-items:center;gap:12px;padding:14px 20px;background:rgba(232,195,106,.06);border:1px solid rgba(232,195,106,.25);border-radius:var(--radius-md)}
+    .orynth-text h3{font-family:var(--font-display);font-size:1rem;font-weight:700;color:var(--gold);margin-bottom:6px;letter-spacing:1px}
+    .orynth-text p{font-size:.78rem;color:var(--text-muted);line-height:1.7}
+    .orynth-link{display:inline-block;margin-top:10px;padding:7px 18px;border-radius:var(--radius-pill);border:1px solid rgba(232,195,106,.3);color:var(--gold);font-size:.7rem;letter-spacing:2px;text-transform:uppercase;text-decoration:none;background:rgba(232,195,106,.07);transition:background .2s}
+    .orynth-link:hover{background:rgba(232,195,106,.15)}
 
-    .card-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
-    .tag { padding: 4px 12px; border-radius: var(--radius-pill); font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; font-weight: 700; border: 1px solid; }
-    .tag-pump  { color: var(--neon-cyan); border-color: rgba(0,245,212,0.4); background: rgba(0,245,212,0.08); }
-    .tag-whale { color: var(--gold);      border-color: rgba(232,195,106,0.4); background: rgba(232,195,106,0.08); }
-    .tag-quiet { color: var(--text-muted); border-color: var(--border-subtle); background: transparent; }
+    /* FEATURES */
+    .feature-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-top:20px}
+    .feature-card{background:rgba(255,255,255,.02);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px;transition:border-color .2s,background .2s}
+    .feature-card:hover{border-color:rgba(0,245,212,.2);background:rgba(0,245,212,.03)}
+    .feature-icon{font-size:1.8rem;margin-bottom:10px}
+    .feature-title{font-family:var(--font-display);font-size:.9rem;font-weight:700;color:var(--text-primary);margin-bottom:6px}
+    .feature-desc{font-size:.74rem;color:var(--text-muted);line-height:1.6}
 
-    .card-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .stat-cell { background: rgba(255,255,255,0.025); border-radius: var(--radius-sm); padding: 8px 10px; border: 1px solid var(--border-subtle); }
-    .stat-label { font-size: 0.6rem; letter-spacing: 2px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
-    .stat-value { font-size: 0.82rem; font-weight: 700; letter-spacing: 0.5px; }
+    /* FOOTER */
+    footer{border-top:1px solid var(--border-subtle);padding:28px 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+    .footer-left{font-size:.68rem;letter-spacing:2px;color:var(--text-muted);text-transform:uppercase}
+    .footer-right{font-size:.65rem;color:var(--text-muted);letter-spacing:1.5px}
+    .footer-links{display:flex;gap:16px}
+    .footer-nav-link{background:none;border:none;cursor:pointer;font-family:var(--font-mono);font-size:.65rem;letter-spacing:1.5px;color:var(--text-muted);text-transform:uppercase;text-decoration:none;transition:color .2s}
+    .footer-nav-link:hover{color:var(--gold)}
 
-    .vol-bar-wrap { margin-top: 14px; }
-    .vol-bar-label { display: flex; justify-content: space-between; font-size: 0.62rem; letter-spacing: 2px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
-    .vol-bar-track { width: 100%; height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
-    .vol-bar-fill { height: 100%; border-radius: 2px; transition: width 1.2s cubic-bezier(0.16,1,0.3,1); }
+    /* KANJI SYMBOL TABLE */
+    .kanji-table{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-top:14px}
 
-    .card-tooltip {
-      position: absolute; bottom: calc(100% + 12px); left: 50%;
-      transform: translateX(-50%) translateY(6px); background: #1a1a2e;
-      border: 1px solid var(--border-card); border-radius: var(--radius-md);
-      padding: 12px 16px; font-size: 0.72rem; color: var(--text-primary);
-      white-space: nowrap; pointer-events: none; opacity: 0;
-      transition: opacity 0.25s ease, transform 0.25s ease;
-      z-index: 100; box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-    }
-    .token-card:hover .card-tooltip { opacity: 1; transform: translateX(-50%) translateY(0); }
-    .tooltip-row { display: flex; justify-content: space-between; gap: 20px; margin-bottom: 4px; }
-    .tooltip-key { color: var(--text-muted); }
-    .tooltip-val { font-weight: 700; }
-
-    /* ===================================================
-       SECTION HEADER (shared)
-       =================================================== */
-    .section-header { display: flex; align-items: baseline; gap: 16px; margin: 40px 0 20px; }
-    .section-title { font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; color: var(--text-primary); letter-spacing: 2px; }
-    .section-kanji { font-family: var(--font-display); font-size: 0.9rem; color: var(--gold); letter-spacing: 4px; opacity: 0.7; }
-    .section-count { margin-left: auto; font-size: 0.68rem; letter-spacing: 2px; color: var(--text-muted); text-transform: uppercase; }
-
-    /* ===================================================
-       TICKER TAPE
-       =================================================== */
-    .ticker-wrap { width: 100%; overflow: hidden; border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle); padding: 10px 0; margin-bottom: 12px; background: rgba(255,255,255,0.015); }
-    .ticker-track { display: flex; gap: 48px; white-space: nowrap; animation: ticker-scroll 20s linear infinite; }
-    @keyframes ticker-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-    .ticker-item { display: inline-flex; align-items: center; gap: 10px; font-size: 0.72rem; letter-spacing: 1px; color: var(--text-secondary); }
-    .ticker-sym { font-weight: 700; color: var(--text-primary); }
-    .ticker-sep { color: var(--text-muted); }
-
-    /* ===================================================
-       PAGE SECTION SHARED STYLES
-       =================================================== */
-    .page-hero {
-      padding: 60px 0 40px; text-align: center; border-bottom: 1px solid var(--border-subtle);
-    }
-    .page-hero-tag {
-      display: inline-block; padding: 5px 18px; border-radius: var(--radius-pill);
-      border: 1px solid rgba(232,195,106,0.3); color: var(--gold);
-      font-size: 0.65rem; letter-spacing: 3px; text-transform: uppercase;
-      background: rgba(232,195,106,0.06); margin-bottom: 24px;
-    }
-    .page-hero h1 {
-      font-family: var(--font-display); font-size: 3rem; font-weight: 800;
-      letter-spacing: 3px; line-height: 1.15; margin-bottom: 16px;
-    }
-    .page-hero h1 span { color: var(--gold); }
-    .page-hero p { color: var(--text-secondary); font-size: 0.88rem; line-height: 1.8; max-width: 640px; margin: 0 auto; }
-
-    /* content blocks */
-    .content-block {
-      background: var(--bg-card); border: 1px solid var(--border-card);
-      border-radius: var(--radius-lg); padding: 32px 36px; margin-bottom: 20px;
-      position: relative; overflow: hidden;
-    }
-    .content-block::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-      background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity: 0.4;
-    }
-    .content-block h2 {
-      font-family: var(--font-display); font-size: 1.3rem; font-weight: 700;
-      color: var(--gold); margin-bottom: 14px; letter-spacing: 2px;
-      display: flex; align-items: center; gap: 12px;
-    }
-    .content-block h2 .blk-kanji { font-size: 1.5rem; opacity: 0.7; }
-    .content-block h3 {
-      font-family: var(--font-display); font-size: 1rem; font-weight: 700;
-      color: var(--neon-cyan); margin: 20px 0 10px; letter-spacing: 1px;
-    }
-    .content-block p { color: var(--text-secondary); font-size: 0.82rem; line-height: 1.85; margin-bottom: 12px; }
-    .content-block ul { list-style: none; padding: 0; }
-    .content-block ul li {
-      padding: 8px 0; border-bottom: 1px solid var(--border-subtle);
-      font-size: 0.82rem; color: var(--text-secondary); display: flex; align-items: flex-start; gap: 10px;
-    }
-    .content-block ul li:last-child { border-bottom: none; }
-    .content-block ul li::before { content: '\u25b8'; color: var(--gold); flex-shrink: 0; margin-top: 1px; }
-
-    /* 2-col grid */
-    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    @media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } }
-
-    /* ===================================================
-       HOW TO \u2014 Steps
-       =================================================== */
-    .steps-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 20px; }
-    .step-card {
-      background: var(--bg-card); border: 1px solid var(--border-card);
-      border-radius: var(--radius-lg); padding: 24px;
-      position: relative; overflow: hidden;
-      transition: transform 0.3s ease, border-color 0.3s ease;
-    }
-    .step-card:hover { transform: translateY(-4px); border-color: rgba(0,245,212,0.3); }
-    .step-num {
-      font-family: var(--font-display); font-size: 3rem; font-weight: 800;
-      color: rgba(232,195,106,0.15); line-height: 1; margin-bottom: 12px;
-    }
-    .step-icon { font-size: 1.8rem; margin-bottom: 12px; display: block; }
-    .step-title { font-family: var(--font-display); font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; letter-spacing: 1px; }
-    .step-desc { font-size: 0.78rem; color: var(--text-muted); line-height: 1.7; }
-
-    /* ===================================================
-       WHITEPAPER \u2014 TOC & Sections
-       =================================================== */
-    .wp-toc {
-      background: var(--bg-surface); border: 1px solid var(--border-card);
-      border-radius: var(--radius-md); padding: 20px 24px; margin-bottom: 24px;
-    }
-    .wp-toc-title { font-size: 0.68rem; letter-spacing: 3px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 14px; }
-    .wp-toc a {
-      display: block; padding: 6px 0; font-size: 0.78rem; color: var(--text-secondary);
-      text-decoration: none; border-bottom: 1px solid var(--border-subtle);
-      transition: color 0.2s, padding-left 0.2s; letter-spacing: 0.5px;
-    }
-    .wp-toc a:last-child { border-bottom: none; }
-    .wp-toc a:hover { color: var(--gold); padding-left: 8px; }
-    .wp-toc a span { color: var(--text-muted); margin-right: 10px; font-size: 0.7rem; }
-
-    .wp-section { margin-bottom: 28px; }
-    .wp-section-id { font-size: 0.65rem; letter-spacing: 3px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
-    .wp-section h2 { font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; color: var(--text-primary); margin-bottom: 14px; letter-spacing: 2px; }
-    .wp-section p { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.9; margin-bottom: 12px; }
-    .wp-section hr { border: none; border-top: 1px solid var(--border-subtle); margin: 24px 0; }
-
-    /* Tokenomics pie visual */
-    .tokenomics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-top: 16px; }
-    .tknm-cell {
-      background: rgba(255,255,255,0.025); border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md); padding: 16px;
-    }
-    .tknm-pct { font-family: var(--font-display); font-size: 2rem; font-weight: 800; }
-    .tknm-label { font-size: 0.68rem; letter-spacing: 2px; color: var(--text-muted); text-transform: uppercase; margin-top: 4px; }
-
-    /* ===================================================
-       ROADMAP
-       =================================================== */
-    .roadmap-timeline { position: relative; padding-left: 32px; }
-    .roadmap-timeline::before {
-      content: ''; position: absolute; left: 10px; top: 0; bottom: 0;
-      width: 1px; background: linear-gradient(180deg, var(--gold) 0%, var(--neon-violet) 50%, rgba(255,255,255,0.05) 100%);
-    }
-    .rm-phase {
-      position: relative; margin-bottom: 36px;
-      animation: card-enter 0.5s ease both;
-    }
-    .rm-dot {
-      position: absolute; left: -26px; top: 4px;
-      width: 12px; height: 12px; border-radius: 50%;
-      border: 2px solid var(--gold); background: var(--bg-void);
-    }
-    .rm-phase.active .rm-dot { background: var(--gold); box-shadow: 0 0 14px var(--gold-glow); }
-    .rm-phase.upcoming .rm-dot { border-color: var(--text-muted); background: var(--bg-void); }
-    .rm-phase.future .rm-dot { border-color: var(--border-subtle); background: var(--bg-void); }
-
-    .rm-date { font-size: 0.65rem; letter-spacing: 3px; color: var(--gold); text-transform: uppercase; margin-bottom: 6px; }
-    .rm-phase.upcoming .rm-date { color: var(--neon-cyan); }
-    .rm-phase.future .rm-date { color: var(--text-muted); }
-
-    .rm-title { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 10px; letter-spacing: 1px; }
-    .rm-items { list-style: none; padding: 0; }
-    .rm-items li {
-      font-size: 0.78rem; color: var(--text-secondary); padding: 5px 0;
-      border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; gap: 10px;
-    }
-    .rm-items li:last-child { border-bottom: none; }
-    .rm-check { color: var(--neon-cyan); flex-shrink: 0; }
-    .rm-check.done::before { content: '\u2713'; }
-    .rm-check.pending::before { content: '\u25e6'; color: var(--text-muted); }
-    .rm-check.upcoming::before { content: '\u2192'; color: var(--neon-cyan); }
-
-    .rm-badge {
-      display: inline-block; padding: 3px 10px; border-radius: var(--radius-pill);
-      font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px;
-    }
-    .rm-badge.live   { background: rgba(0,245,212,0.12); color: var(--neon-cyan); border: 1px solid rgba(0,245,212,0.3); }
-    .rm-badge.next   { background: rgba(232,195,106,0.08); color: var(--gold); border: 1px solid rgba(232,195,106,0.25); }
-    .rm-badge.future { background: rgba(255,255,255,0.04); color: var(--text-muted); border: 1px solid var(--border-subtle); }
-
-    /* ===================================================
-       ABOUT \u2014 Team Section
-       =================================================== */
-    .team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; margin-top: 20px; }
-    .team-card {
-      background: var(--bg-card); border: 1px solid var(--border-card);
-      border-radius: var(--radius-lg); padding: 24px; text-align: center;
-      transition: transform 0.3s ease, border-color 0.3s ease;
-    }
-    .team-card:hover { transform: translateY(-4px); border-color: rgba(232,195,106,0.3); }
-    .team-avatar {
-      width: 64px; height: 64px; border-radius: 50%; margin: 0 auto 14px;
-      background: linear-gradient(135deg, var(--neon-violet), var(--wave-blue));
-      display: flex; align-items: center; justify-content: center;
-      font-family: var(--font-display); font-size: 1.6rem; font-weight: 800;
-      border: 2px solid rgba(232,195,106,0.2);
-    }
-    .team-name { font-family: var(--font-display); font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; letter-spacing: 1px; }
-    .team-role { font-size: 0.68rem; letter-spacing: 2px; color: var(--gold); text-transform: uppercase; margin-bottom: 10px; }
-    .team-bio { font-size: 0.74rem; color: var(--text-muted); line-height: 1.6; }
-    .team-links { display: flex; justify-content: center; gap: 10px; margin-top: 14px; }
-    .team-link {
-      padding: 5px 14px; border-radius: var(--radius-pill);
-      font-size: 0.65rem; letter-spacing: 1.5px; text-transform: uppercase;
-      color: var(--neon-cyan); border: 1px solid rgba(0,245,212,0.3);
-      background: rgba(0,245,212,0.06); text-decoration: none;
-      transition: background 0.2s; cursor: pointer;
-    }
-    .team-link:hover { background: rgba(0,245,212,0.14); }
-
-    /* Orynth badge section */
-    .orynth-block {
-      display: flex; align-items: center; gap: 24px; flex-wrap: wrap;
-      background: var(--bg-card); border: 1px solid rgba(232,195,106,0.2);
-      border-radius: var(--radius-lg); padding: 28px 32px; margin-top: 24px;
-    }
-    .orynth-block img { border-radius: var(--radius-md); display: block; }
-    .orynth-text h3 { font-family: var(--font-display); font-size: 1rem; font-weight: 700; color: var(--gold); margin-bottom: 6px; letter-spacing: 1px; }
-    .orynth-text p  { font-size: 0.78rem; color: var(--text-muted); line-height: 1.7; }
-    .orynth-link {
-      display: inline-block; margin-top: 10px; padding: 7px 18px;
-      border-radius: var(--radius-pill); border: 1px solid rgba(232,195,106,0.3);
-      color: var(--gold); font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase;
-      text-decoration: none; background: rgba(232,195,106,0.07);
-      transition: background 0.2s;
-    }
-    .orynth-link:hover { background: rgba(232,195,106,0.15); }
-
-    /* Feature cards for About */
-    .feature-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin-top: 20px; }
-    .feature-card {
-      background: rgba(255,255,255,0.02); border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md); padding: 20px;
-      transition: border-color 0.2s, background 0.2s;
-    }
-    .feature-card:hover { border-color: rgba(0,245,212,0.2); background: rgba(0,245,212,0.03); }
-    .feature-icon { font-size: 1.8rem; margin-bottom: 10px; }
-    .feature-title { font-family: var(--font-display); font-size: 0.9rem; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
-    .feature-desc  { font-size: 0.74rem; color: var(--text-muted); line-height: 1.6; }
-
-    /* ===================================================
-       FOOTER
-       =================================================== */
-    footer {
-      border-top: 1px solid var(--border-subtle); padding: 28px 0;
-      display: flex; justify-content: space-between; align-items: center;
-      flex-wrap: wrap; gap: 12px;
-    }
-    .footer-left { font-size: 0.68rem; letter-spacing: 2px; color: var(--text-muted); text-transform: uppercase; }
-    .footer-left span { font-family: var(--font-display); color: var(--gold); }
-    .footer-right { font-size: 0.65rem; color: var(--text-muted); letter-spacing: 1.5px; }
-    .footer-links { display: flex; gap: 16px; }
-    .footer-nav-link {
-      background: none; border: none; cursor: pointer;
-      font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 1.5px;
-      color: var(--text-muted); text-transform: uppercase; text-decoration: none;
-      transition: color 0.2s;
-    }
-    .footer-nav-link:hover { color: var(--gold); }
-
-    /* ===================================================
-       RESPONSIVE
-       =================================================== */
-    @media (max-width: 640px) {
-      .logo-kanji { font-size: 1.6rem; }
-      .header-stat { display: none; }
-      .legend { display: none; }
-      .token-grid { grid-template-columns: 1fr; }
-      .shell { padding: 0 16px 60px; }
-      .page-hero h1 { font-size: 2rem; }
-      .content-block { padding: 22px 20px; }
-      .two-col { grid-template-columns: 1fr; }
-    }
+    /* RESPONSIVE */
+    @media(max-width:768px){.two-col{grid-template-columns:1fr}}
+    @media(max-width:640px){.logo-kanji{font-size:1.6rem}.header-stat,.legend{display:none}.token-grid{grid-template-columns:1fr}.shell{padding:0 16px 60px}.page-hero h1{font-size:2rem}.content-block{padding:22px 20px}}
   </style>
 </head>
 <body>
 
-  <!-- AMBIENT BACKGROUND -->
-  <div class="bg-canvas">
-    <svg class="kintsugi-veins" viewBox="0 0 1440 900" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-      <path d="M0,450 Q200,200 400,380 T800,300 T1200,420 T1440,350" stroke="#e8c36a" stroke-width="1.5" fill="none"/>
-      <path d="M0,600 Q300,500 500,580 T900,520 T1440,600" stroke="#e8c36a" stroke-width="1" fill="none"/>
-      <path d="M720,0 Q680,200 750,400 Q800,550 720,900" stroke="#e8c36a" stroke-width="1" fill="none"/>
-      <path d="M1440,0 Q1200,180 1100,350 T980,600 T1050,900" stroke="#e8c36a" stroke-width="0.8" fill="none"/>
-      <path d="M200,0 Q240,150 180,320 Q130,480 220,650 Q280,780 200,900" stroke="#e8c36a" stroke-width="0.8" fill="none"/>
-    </svg>
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <div class="orb orb-3"></div>
-  </div>
+<!-- AMBIENT BACKGROUND -->
+<div class="bg-canvas">
+  <svg class="kv" viewBox="0 0 1440 900" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+    <path d="M0,450 Q200,200 400,380 T800,300 T1200,420 T1440,350" stroke="#e8c36a" stroke-width="1.5" fill="none"/>
+    <path d="M0,600 Q300,500 500,580 T900,520 T1440,600" stroke="#e8c36a" stroke-width="1" fill="none"/>
+    <path d="M720,0 Q680,200 750,400 Q800,550 720,900" stroke="#e8c36a" stroke-width="1" fill="none"/>
+    <path d="M1440,0 Q1200,180 1100,350 T980,600 T1050,900" stroke="#e8c36a" stroke-width="0.8" fill="none"/>
+    <path d="M200,0 Q240,150 180,320 Q130,480 220,650 Q280,780 200,900" stroke="#e8c36a" stroke-width="0.8" fill="none"/>
+  </svg>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
 
-  <!-- ===================================================
-       STICKY NAV
-       =================================================== -->
-  <nav class="topnav">
-    <div class="topnav-inner">
-      <div class="nav-logo" onclick="showPage('dashboard')">\u6ce2\u52d5 PumpRadar</div>
-      <div class="nav-links">
-        <button class="nav-link active" onclick="showPage('dashboard')" data-page="dashboard">Dashboard</button>
-        <button class="nav-link" onclick="showPage('about')" data-page="about">About</button>
-        <button class="nav-link" onclick="showPage('howto')" data-page="howto">How To</button>
-        <button class="nav-link" onclick="showPage('whitepaper')" data-page="whitepaper">Whitepaper</button>
-        <button class="nav-link" onclick="showPage('roadmap')" data-page="roadmap">Roadmap</button>
-      </div>
-      <div class="nav-live"><div class="nav-live-dot"></div>LIVE</div>
-      <button class="nav-hamburger" id="hamburger" onclick="toggleMobileMenu()">
-        <span></span><span></span><span></span>
-      </button>
+<!-- STICKY NAV -->
+<nav class="topnav">
+  <div class="topnav-inner">
+    <div class="nav-logo" onclick="showPage('dashboard')">波動 PumpRadar</div>
+    <div class="nav-links">
+      <button class="nav-link active" onclick="showPage('dashboard')" data-page="dashboard">Dashboard</button>
+      <button class="nav-link" onclick="showPage('about')" data-page="about">About</button>
+      <button class="nav-link" onclick="showPage('howto')" data-page="howto">How To Use</button>
+      <button class="nav-link" onclick="showPage('whitepaper')" data-page="whitepaper">Whitepaper</button>
+      <button class="nav-link" onclick="showPage('roadmap')" data-page="roadmap">Roadmap</button>
     </div>
-  </nav>
-  <!-- Mobile dropdown -->
-  <div class="mobile-menu" id="mobileMenu">
-    <button class="nav-link" onclick="showPage('dashboard');toggleMobileMenu()" data-page="dashboard">Dashboard</button>
-    <button class="nav-link" onclick="showPage('about');toggleMobileMenu()" data-page="about">About</button>
-    <button class="nav-link" onclick="showPage('howto');toggleMobileMenu()" data-page="howto">How To Use</button>
-    <button class="nav-link" onclick="showPage('whitepaper');toggleMobileMenu()" data-page="whitepaper">Whitepaper</button>
-    <button class="nav-link" onclick="showPage('roadmap');toggleMobileMenu()" data-page="roadmap">Roadmap</button>
+    <div class="nav-live"><div class="nav-live-dot"></div>LIVE</div>
+    <button class="nav-hamburger" onclick="toggleMobileMenu()">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <button class="nav-link" onclick="showPage('dashboard');toggleMobileMenu()" data-page="m-dashboard">Dashboard</button>
+  <button class="nav-link" onclick="showPage('about');toggleMobileMenu()" data-page="m-about">About</button>
+  <button class="nav-link" onclick="showPage('howto');toggleMobileMenu()" data-page="m-howto">How To Use</button>
+  <button class="nav-link" onclick="showPage('whitepaper');toggleMobileMenu()" data-page="m-whitepaper">Whitepaper</button>
+  <button class="nav-link" onclick="showPage('roadmap');toggleMobileMenu()" data-page="m-roadmap">Roadmap</button>
+</div>
+
+<div class="shell">
+
+  <!-- ===================================================
+       PAGE: DASHBOARD
+       =================================================== -->
+  <div class="page-section active" id="page-dashboard">
+    <header>
+      <div class="logo-group">
+        <div class="logo-kanji">波動</div>
+        <div>
+          <div class="logo-text"><span>Pump</span>Radar.space</div>
+          <div style="font-size:.6rem;letter-spacing:2px;color:var(--text-muted);margin-top:2px;">CRYPTO PULSE · ART VISION</div>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="header-stat"><strong id="header-vol">$2.84B</strong>24H VOLUME</div>
+        <div class="header-stat"><strong id="header-pumps">12</strong>ACTIVE PUMPS</div>
+        <div class="header-stat"><strong id="header-whales">7</strong>WHALE ALERTS</div>
+        <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+      </div>
+    </header>
+
+    <div class="ticker-wrap"><div class="ticker-track" id="tickerTrack"></div></div>
+
+    <div class="filter-bar">
+      <span class="filter-label">View</span>
+      <button class="filter-btn f-all active" data-filter="all">All Tokens</button>
+      <button class="filter-btn f-pump" data-filter="pump">🌊 Pump Only</button>
+      <button class="filter-btn f-whale" data-filter="whale">🐋 Whale Only</button>
+      <button class="filter-btn" data-filter="both">⚡ Pump + Whale</button>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-icon legend-pump"></div>Pump</div>
+        <div class="legend-item"><div class="legend-icon legend-whale"></div>Whale</div>
+        <div class="legend-item"><div class="legend-icon legend-both"></div>Both</div>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <div class="section-title">Token Radar</div>
+      <div class="section-kanji">市場波動</div>
+      <div class="section-count" id="visibleCount">Showing 7 tokens</div>
+    </div>
+
+    <div class="token-grid" id="tokenGrid"></div>
   </div>
 
   <!-- ===================================================
-       SHELL
+       PAGE: ABOUT
        =================================================== -->
-  <div class="shell">
+  <div class="page-section" id="page-about">
+    <div class="page-hero">
+      <div class="page-hero-tag">について · About</div>
+      <h1>Where <span>Markets</span><br>Become Art</h1>
+      <p>PumpRadar.space transforms raw blockchain data into a living visual experience — inspired by Japanese contemporary art and the relentless pulse of DeFi markets.</p>
+    </div>
 
-    <!-- ==================================================
-         PAGE: DASHBOARD
-         ================================================== -->
-    <div class="page-section active" id="page-dashboard">
-
-      <header>
-        <div class="logo-group">
-          <div class="logo-kanji">\u6ce2\u52d5</div>
-          <div>
-            <div class="logo-text"><span>Pump</span>Radar.space</div>
-            <div style="font-size:0.6rem;letter-spacing:2px;color:var(--text-muted);margin-top:2px;">CRYPTO PULSE \u00b7 ART VISION</div>
-          </div>
-        </div>
-        <div class="header-right">
-          <div class="header-stat"><strong id="header-vol">$2.84B</strong>24H VOLUME</div>
-          <div class="header-stat"><strong id="header-pumps">12</strong>ACTIVE PUMPS</div>
-          <div class="header-stat"><strong id="header-whales">7</strong>WHALE ALERTS</div>
-          <div class="live-badge"><div class="live-dot"></div>LIVE</div>
-        </div>
-      </header>
-
-      <div class="ticker-wrap" id="tickerWrap">
-        <div class="ticker-track" id="tickerTrack"></div>
+    <div class="section-header"><div class="section-title">Our Vision</div><div class="section-kanji">ビジョン</div></div>
+    <div class="two-col">
+      <div class="content-block">
+        <h2><span class="blk-kanji">波</span> The Mission</h2>
+        <p>Crypto markets are chaotic, beautiful, and alive. PumpRadar.space was built on one premise: <strong style="color:var(--gold)">market data should feel as alive as the art it inspires.</strong></p>
+        <p>We fuse real-time on-chain intelligence — pump signals, whale movements, volume anomalies — into an aesthetic dashboard that doesn't just inform, it immerses.</p>
+        <p>We believe the next generation of crypto tools must speak to the human instinct for pattern, beauty, and meaning.</p>
       </div>
-
-      <div class="filter-bar">
-        <span class="filter-label">View</span>
-        <button class="filter-btn f-all active" data-filter="all">All Tokens</button>
-        <button class="filter-btn f-pump" data-filter="pump">\ud83c\udf0a Pump Only</button>
-        <button class="filter-btn f-whale" data-filter="whale">\ud83d\udc0b Whale Only</button>
-        <button class="filter-btn" data-filter="both">\u26a1 Pump + Whale</button>
-        <div class="legend">
-          <div class="legend-item"><div class="legend-icon legend-pump"></div>Pump Active</div>
-          <div class="legend-item"><div class="legend-icon legend-whale"></div>Whale Alert</div>
-          <div class="legend-item"><div class="legend-icon legend-both"></div>Both Signals</div>
-        </div>
+      <div class="content-block">
+        <h2><span class="blk-kanji">金</span> Why It's Different</h2>
+        <ul>
+          <li>Real-time pump detection visualized as Ukiyo-e wave blooms</li>
+          <li>Whale alerts displayed through Kintsugi gold crack animations</li>
+          <li>Murakami rainbow signals for dual pump+whale events</li>
+          <li>Kusama polka dots encoding volume density at a glance</li>
+          <li>Zero clutter — every pixel carries signal, not noise</li>
+          <li>Mobile-first, responsive art dashboard for any device</li>
+        </ul>
       </div>
+    </div>
 
-      <div class="section-header">
-        <div class="section-title">Token Radar</div>
-        <div class="section-kanji">\u5e02\u5834\u6ce2\u52d5</div>
-        <div class="section-count" id="visibleCount">Showing 7 tokens</div>
-      </div>
+    <div class="section-header"><div class="section-title">Features</div><div class="section-kanji">機能</div></div>
+    <div class="feature-grid">
+      <div class="feature-card"><div class="feature-icon">🌊</div><div class="feature-title">Pump Radar</div><div class="feature-desc">Detects early pump signals across 7+ chains using volume anomaly algorithms and social momentum scoring.</div></div>
+      <div class="feature-card"><div class="feature-icon">🐋</div><div class="feature-title">Whale Tracker</div><div class="feature-desc">Monitors wallets holding >$500K. Gold glow alerts fire when whales accumulate or distribute.</div></div>
+      <div class="feature-card"><div class="feature-icon">⚡</div><div class="feature-title">Dual Signal</div><div class="feature-desc">The strongest alert: when pump momentum and whale accumulation converge simultaneously on one token.</div></div>
+      <div class="feature-card"><div class="feature-icon">🎨</div><div class="feature-title">Art Mode</div><div class="feature-desc">Every visual is semantically meaningful. Sakura blooms, Kintsugi veins, and polka dots all encode real data.</div></div>
+      <div class="feature-card"><div class="feature-icon">📡</div><div class="feature-title">Live Ticker</div><div class="feature-desc">Continuous scrolling price and signal feed across all tracked tokens — updated every 3 seconds.</div></div>
+      <div class="feature-card"><div class="feature-icon">🔍</div><div class="feature-title">Filter & Focus</div><div class="feature-desc">One-click filtering to isolate pump-only, whale-only, or dual-signal tokens for fast scanning.</div></div>
+    </div>
 
-      <div class="token-grid" id="tokenGrid"></div>
-
-    </div><!-- /page-dashboard -->
-
-    <!-- ==================================================
-         PAGE: ABOUT
-         ================================================== -->
-    <div class="page-section" id="page-about">
-
-      <div class="page-hero">
-        <div class="page-hero-tag">\u306b\u3064\u3044\u3066 \u00b7 About</div>
-        <h1>Where <span>Markets</span><br>Become Art</h1>
-        <p>PumpRadar.space transforms raw blockchain data into a living, breathing visual experience \u2014 inspired by the beauty of Japanese contemporary art and the relentless pulse of DeFi markets.</p>
-      </div>
-
-      <div class="section-header">
-        <div class="section-title">Our Vision</div>
-        <div class="section-kanji">\u30d3\u30b8\u30e7\u30f3</div>
-      </div>
-
-      <div class="two-col">
-        <div class="content-block">
-          <h2><span class="blk-kanji">\u6ce2</span> The Mission</h2>
-          <p>Crypto markets are chaotic, beautiful, and alive. PumpRadar.space was built on a single premise: <strong style="color:var(--gold)">market data should feel as alive as the art it inspires.</strong></p>
-          <p>We fuse real-time on-chain intelligence \u2014 pump signals, whale wallet movements, volume anomalies \u2014 into an aesthetic dashboard that doesn't just inform, it immerses.</p>
-          <p>We believe the next generation of crypto tools must go beyond raw numbers and speak to the human instinct for pattern, beauty, and meaning.</p>
-        </div>
-        <div class="content-block">
-          <h2><span class="blk-kanji">\u91d1</span> Why It's Different</h2>
-          <ul>
-            <li>Real-time pump detection visualized as Ukiyo-e wave blooms</li>
-            <li>Whale wallet alerts displayed through Kintsugi gold crack animations</li>
-            <li>Murakami-inspired rainbow signals for dual pump+whale events</li>
-            <li>Kusama polka-dot patterns encoding volume density at a glance</li>
-            <li>Zero clutter \u2014 every pixel carries signal, not noise</li>
-            <li>Mobile-first, responsive art dashboard for any device</li>
-          </ul>
+    <div class="section-header"><div class="section-title">Dev Team</div><div class="section-kanji">開発チーム</div></div>
+    <div class="team-grid">
+      <div class="team-card">
+        <div class="team-avatar" style="background:linear-gradient(135deg,#b14aed,#3a7bd5);">海</div>
+        <div class="team-name">OtakuCompass</div>
+        <div class="team-role">Lead Developer & Founder</div>
+        <div class="team-bio">Full-stack Web3 developer. Blends blockchain engineering with Japanese art philosophy to build tools that feel alive.</div>
+        <div class="team-links">
+          <a class="team-link gold" href="https://x.com/otakucompassai" target="_blank" rel="noopener">𝕏 @otakucompassai</a>
         </div>
       </div>
-
-      <div class="section-header">
-        <div class="section-title">Features</div>
-        <div class="section-kanji">\u6a5f\u80fd</div>
+      <div class="team-card">
+        <div class="team-avatar" style="background:linear-gradient(135deg,#e8c36a,#f0a8c0);">金</div>
+        <div class="team-name">Kenji M.</div>
+        <div class="team-role">On-Chain Analyst</div>
+        <div class="team-bio">Specializes in whale wallet clustering, DEX flow analysis, and high-velocity market event alert systems.</div>
+        <div class="team-links"><a class="team-link" href="#" onclick="return false;">𝕏 Coming Soon</a></div>
       </div>
-
-      <div class="feature-grid">
-        <div class="feature-card">
-          <div class="feature-icon">\ud83c\udf0a</div>
-          <div class="feature-title">Pump Radar</div>
-          <div class="feature-desc">Detects early pump signals across 7+ chains using volume anomaly algorithms and social momentum scoring.</div>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">\ud83d\udc0b</div>
-          <div class="feature-title">Whale Tracker</div>
-          <div class="feature-desc">Monitors wallets holding >$500K in a single asset. Gold glow alerts fire when whales accumulate or distribute.</div>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">\u26a1</div>
-          <div class="feature-title">Dual Signal</div>
-          <div class="feature-desc">The most powerful alert: when pump momentum and whale accumulation converge simultaneously on one token.</div>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">\ud83c\udfa8</div>
-          <div class="feature-title">Art Mode</div>
-          <div class="feature-desc">Every visual element is semantically meaningful. No decorative noise \u2014 Sakura blooms, veins, and polka dots all encode real data.</div>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">\ud83d\udce1</div>
-          <div class="feature-title">Live Ticker</div>
-          <div class="feature-desc">Continuous scrolling price and signal feed across all tracked tokens \u2014 updated every 3 seconds via WebSocket.</div>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">\ud83d\udd0d</div>
-          <div class="feature-title">Filter & Focus</div>
-          <div class="feature-desc">One-click filtering to isolate pump-only, whale-only, or dual-signal tokens. Built for fast decision-making.</div>
-        </div>
+      <div class="team-card">
+        <div class="team-avatar" style="background:linear-gradient(135deg,#00f5d4,#0093a8);">波</div>
+        <div class="team-name">Sakura.dev</div>
+        <div class="team-role">UX / Visual Design</div>
+        <div class="team-bio">Designer at the intersection of data visualization and Japanese aesthetics. Kintsugi as a design philosophy.</div>
+        <div class="team-links"><a class="team-link" href="#" onclick="return false;">𝕏 Coming Soon</a></div>
       </div>
-
-      <div class="section-header">
-        <div class="section-title">Dev Team</div>
-        <div class="section-kanji">\u958b\u767a\u30c1\u30fc\u30e0</div>
+      <div class="team-card">
+        <div class="team-avatar" style="background:linear-gradient(135deg,#e84142,#b14aed);">龍</div>
+        <div class="team-name">RyuChain</div>
+        <div class="team-role">Smart Contract Engineer</div>
+        <div class="team-bio">WebSocket infrastructure, on-chain data indexing, and multi-chain oracle integration across EVM + Solana.</div>
+        <div class="team-links"><a class="team-link" href="#" onclick="return false;">𝕏 Coming Soon</a></div>
       </div>
+    </div>
 
-      <div class="team-grid">
-        <div class="team-card">
-          <div class="team-avatar" style="background: linear-gradient(135deg, #b14aed, #3a7bd5);">\u6d77</div>
-          <div class="team-name">OtakuCompass</div>
-          <div class="team-role">Lead Developer & Founder</div>
-          <div class="team-bio">Full-stack Web3 developer. Blends blockchain engineering with Japanese art philosophy to build tools that feel alive.</div>
-          <div class="team-links">
-            <a class="team-link" href="https://x.com/otakucompassai" target="_blank" rel="noopener">\ud835\udd4f Twitter</a>
-          </div>
-        </div>
-        <div class="team-card">
-          <div class="team-avatar" style="background: linear-gradient(135deg, #e8c36a, #f0a8c0);">\u91d1</div>
-          <div class="team-name">Kenji M.</div>
-          <div class="team-role">On-Chain Analyst</div>
-          <div class="team-bio">Specializes in whale wallet clustering, DEX flow analysis, and building alert systems for high-velocity market events.</div>
-          <div class="team-links">
-            <a class="team-link" href="#" onclick="return false;">\ud835\udd4f Coming Soon</a>
-          </div>
-        </div>
-        <div class="team-card">
-          <div class="team-avatar" style="background: linear-gradient(135deg, #00f5d4, #0093a8);">\u6ce2</div>
-          <div class="team-name">Sakura.dev</div>
-          <div class="team-role">UX / Visual Design</div>
-          <div class="team-bio">Designer obsessed with the intersection of data visualization and contemporary Japanese aesthetics. Kintsugi as a design philosophy.</div>
-          <div class="team-links">
-            <a class="team-link" href="#" onclick="return false;">\ud835\udd4f Coming Soon</a>
-          </div>
-        </div>
-        <div class="team-card">
-          <div class="team-avatar" style="background: linear-gradient(135deg, #e84142, #b14aed);">\u9f8d</div>
-          <div class="team-name">RyuChain</div>
-          <div class="team-role">Smart Contract Engineer</div>
-          <div class="team-bio">Backend WebSocket infrastructure, on-chain data indexing, and multi-chain oracle integration across EVM + Solana.</div>
-          <div class="team-links">
-            <a class="team-link" href="#" onclick="return false;">\ud835\udd4f Coming Soon</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Orynth Badge -->
-      <div class="orynth-block">
+    <!-- Orynth Badge -->
+    <div class="orynth-block">
+      <div class="orynth-badge-wrap">
         <a href="https://orynth.dev/projects/pump-radar" target="_blank" rel="noopener">
-          <img src="https://orynth.dev/api/badge/pump-radar?theme=light&style=default" alt="Featured on Orynth" width="200" height="62"
-            style="border:1px solid rgba(232,195,106,0.2);border-radius:10px;"
-            onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
-          <div style="display:none;align-items:center;gap:10px;padding:12px 20px;background:rgba(232,195,106,0.06);border:1px solid rgba(232,195,106,0.25);border-radius:10px;">
-            <span style="font-size:1.2rem;">\ud83c\udfc6</span>
-            <div>
-              <div style="font-size:0.72rem;color:var(--gold);font-weight:700;letter-spacing:2px;">FEATURED ON ORYNTH</div>
-              <div style="font-size:0.62rem;color:var(--text-muted);letter-spacing:1px;">orynth.dev</div>
-            </div>
-          </div>
+          <img src="https://orynth.dev/api/badge/pump-radar?theme=light&style=default"
+               alt="Featured on Orynth" width="220" height="68"
+               style="border-radius:10px;border:1px solid rgba(232,195,106,0.2);display:block;"
+               onerror="this.style.display='none';document.getElementById('orynth-fallback').style.display='flex';" />
         </a>
-        <div class="orynth-text">
-          <h3>Featured on Orynth.dev</h3>
-          <p>PumpRadar.space is officially featured on Orynth \u2014 a curated directory of the most innovative Web3 and DeFi tools being built by independent developer teams worldwide.</p>
-          <a class="orynth-link" href="https://orynth.dev/projects/pump-radar" target="_blank" rel="noopener">View on Orynth \u2192</a>
-        </div>
-      </div>
-
-    </div><!-- /page-about -->
-
-    <!-- ==================================================
-         PAGE: HOW TO USE
-         ================================================== -->
-    <div class="page-section" id="page-howto">
-
-      <div class="page-hero">
-        <div class="page-hero-tag">\u4f7f\u3044\u65b9 \u00b7 How To Use</div>
-        <h1>Reading the <span>Art</span><br>of the Market</h1>
-        <p>PumpRadar.space speaks a visual language. Each color, animation, and symbol carries meaning. Learn to read the signals in under 2 minutes.</p>
-      </div>
-
-      <div class="section-header">
-        <div class="section-title">Quick Start</div>
-        <div class="section-kanji">\u59cb\u3081\u65b9</div>
-      </div>
-
-      <div class="steps-grid">
-        <div class="step-card">
-          <div class="step-num">01</div>
-          <span class="step-icon">\ud83d\udc41\ufe0f</span>
-          <div class="step-title">Open the Dashboard</div>
-          <div class="step-desc">Navigate to the Dashboard tab. You'll see the live token grid \u2014 each card represents a tracked asset with real-time signal data.</div>
-        </div>
-        <div class="step-card">
-          <div class="step-num">02</div>
-          <span class="step-icon">\ud83c\udf0a</span>
-          <div class="step-title">Watch the Pulse</div>
-          <div class="step-desc">Cards with cyan rings pulsing outward = active pump signal detected. The faster the rings, the stronger the momentum anomaly.</div>
-        </div>
-        <div class="step-card">
-          <div class="step-num">03</div>
-          <span class="step-icon">\ud83d\udc0b</span>
-          <div class="step-title">Spot the Whales</div>
-          <div class="step-desc">A gold shimmer sweeping across a card = whale wallet activity detected. Gold border glow intensifies as wallet size increases.</div>
-        </div>
-        <div class="step-card">
-          <div class="step-num">04</div>
-          <span class="step-icon">\u26a1</span>
-          <div class="step-title">Dual Signal = Act Fast</div>
-          <div class="step-desc">A rainbow conic bloom at the card base with violet border = BOTH pump and whale signals are active. Historically the strongest setup.</div>
-        </div>
-        <div class="step-card">
-          <div class="step-num">05</div>
-          <span class="step-icon">\ud83d\udd0d</span>
-          <div class="step-title">Use the Filters</div>
-          <div class="step-desc">Use the filter bar to narrow your focus: view Pump Only, Whale Only, or Both at once. Great for high-signal scanning sessions.</div>
-        </div>
-        <div class="step-card">
-          <div class="step-num">06</div>
-          <span class="step-icon">\ud83d\uddb1\ufe0f</span>
-          <div class="step-title">Hover for Details</div>
-          <div class="step-desc">Hover any token card to reveal a tooltip with price, 24H change, market cap, and signal description. Tap on mobile.</div>
-        </div>
-      </div>
-
-      <div class="section-header" style="margin-top:40px;">
-        <div class="section-title">Visual Language Guide</div>
-        <div class="section-kanji">\u8996\u899a\u8a00\u8a9e</div>
-      </div>
-
-      <div class="two-col">
-        <div class="content-block">
-          <h2><span class="blk-kanji">\u8272</span> Color Meanings</h2>
-          <ul>
-            <li><strong style="color:var(--neon-cyan)">Cyan / Teal</strong> \u2014 Pump signal active, upward price momentum detected</li>
-            <li><strong style="color:var(--gold)">Gold / Kintsugi</strong> \u2014 Whale wallet activity, large holder accumulation</li>
-            <li><strong style="color:var(--sakura)">Sakura Pink</strong> \u2014 Negative price change, downward pressure</li>
-            <li><strong style="color:var(--neon-violet)">Violet / Rainbow</strong> \u2014 Dual signal: pump + whale converging</li>
-            <li><strong style="color:var(--text-muted)">Grey / Muted</strong> \u2014 Token in quiet state, no active signals</li>
-          </ul>
-        </div>
-        <div class="content-block">
-          <h2><span class="blk-kanji">\u52d5</span> Animation Meanings</h2>
-          <ul>
-            <li><strong style="color:var(--neon-cyan)">Pulsing rings</strong> \u2014 Real-time pump momentum, rings = signal strength</li>
-            <li><strong style="color:var(--gold)">Gold shimmer sweep</strong> \u2014 Active whale movement in the last 15 minutes</li>
-            <li><strong style="color:var(--gold)">Kintsugi veins (hover)</strong> \u2014 Represents the beauty of market fracture and recovery</li>
-            <li><strong style="color:var(--sakura)">Polka dot density</strong> \u2014 Volume concentration (Kusama-inspired data encoding)</li>
-            <li><strong style="color:var(--text-secondary)">Kanji glyph scale</strong> \u2014 Hover growth = signal confidence score</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="content-block" style="margin-top:20px;">
-        <h2><span class="blk-kanji">\u6587</span> Kanji Symbol Key</h2>
-        <div class="card-stats" style="grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px;">
-          <div class="stat-cell" style="text-align:center;">
-            <div style="font-family:var(--font-display);font-size:2rem;color:var(--gold);">\u901f</div>
-            <div class="stat-label">Speed / Momentum</div>
-          </div>
-          <div class="stat-cell" style="text-align:center;">
-            <div style="font-family:var(--font-display);font-size:2rem;color:var(--gold);">\u9be8</div>
-            <div class="stat-label">Whale</div>
-          </div>
-          <div class="stat-cell" style="text-align:center;">
-            <div style="font-family:var(--font-display);font-size:2rem;color:var(--gold);">\u7206</div>
-            <div class="stat-label">Explosion / Breakout</div>
-          </div>
-          <div class="stat-cell" style="text-align:center;">
-            <div style="font-family:var(--font-display);font-size:2rem;color:var(--gold);">\u9759</div>
-            <div class="stat-label">Stillness / Quiet</div>
-          </div>
-          <div class="stat-cell" style="text-align:center;">
-            <div style="font-family:var(--font-display);font-size:2rem;color:var(--gold);">\u72d7</div>
-            <div class="stat-label">Community / Meme</div>
-          </div>
-          <div class="stat-cell" style="text-align:center;">
-            <div style="font-family:var(--font-display);font-size:2rem;color:var(--gold);">\u96ea</div>
-            <div class="stat-label">Avalanche / Force</div>
-          </div>
-          <div class="stat-cell" style="text-align:center;">
-            <div style="font-family:var(--font-display);font-size:2rem;color:var(--gold);">\u9396</div>
-            <div class="stat-label">Chain / Network</div>
+        <div id="orynth-fallback" style="display:none;" class="orynth-badge-fallback">
+          <span style="font-size:1.4rem;">🏆</span>
+          <div>
+            <div style="font-size:.72rem;color:var(--gold);font-weight:700;letter-spacing:2px;">FEATURED ON ORYNTH</div>
+            <div style="font-size:.62rem;color:var(--text-muted);letter-spacing:1px;margin-top:2px;">orynth.dev/projects/pump-radar</div>
           </div>
         </div>
       </div>
+      <div class="orynth-text">
+        <h3>Featured on Orynth.dev</h3>
+        <p>PumpRadar.space is officially featured on Orynth — a curated directory of the most innovative Web3 and DeFi tools built by independent developer teams worldwide.</p>
+        <a class="orynth-link" href="https://orynth.dev/projects/pump-radar" target="_blank" rel="noopener">View Project on Orynth →</a>
+      </div>
+    </div>
+  </div>
 
-      <div class="content-block" style="margin-top:20px; background: rgba(0,245,212,0.03); border-color: rgba(0,245,212,0.15);">
-        <h2 style="color:var(--neon-cyan);"><span class="blk-kanji">\u26a0</span> Disclaimer</h2>
-        <p>PumpRadar.space is a data visualization and signal-detection tool. It does <strong>not</strong> constitute financial advice. All signals are algorithmic pattern detections. Always conduct your own research (DYOR) before making any trading decisions. Crypto markets are highly volatile \u2014 never invest more than you can afford to lose.</p>
+  <!-- ===================================================
+       PAGE: HOW TO USE
+       =================================================== -->
+  <div class="page-section" id="page-howto">
+    <div class="page-hero">
+      <div class="page-hero-tag">使い方 · How To Use</div>
+      <h1>Reading the <span>Art</span><br>of the Market</h1>
+      <p>PumpRadar.space speaks a visual language. Every color, animation, and symbol carries meaning. Learn to read the signals in under 2 minutes.</p>
+    </div>
+
+    <div class="section-header"><div class="section-title">Quick Start</div><div class="section-kanji">始め方</div></div>
+    <div class="steps-grid">
+      <div class="step-card"><div class="step-num">01</div><span class="step-icon">👁️</span><div class="step-title">Open the Dashboard</div><div class="step-desc">Navigate to the Dashboard tab. You'll see the live token grid — each card represents a tracked asset with real-time signal data.</div></div>
+      <div class="step-card"><div class="step-num">02</div><span class="step-icon">🌊</span><div class="step-title">Watch the Pulse</div><div class="step-desc">Cards with cyan rings pulsing outward = active pump signal detected. The more rings visible, the stronger the momentum anomaly.</div></div>
+      <div class="step-card"><div class="step-num">03</div><span class="step-icon">🐋</span><div class="step-title">Spot the Whales</div><div class="step-desc">A gold shimmer sweeping across a card = whale wallet activity. Gold border glow intensifies as wallet concentration increases.</div></div>
+      <div class="step-card"><div class="step-num">04</div><span class="step-icon">⚡</span><div class="step-title">Dual Signal = Act Fast</div><div class="step-desc">A rainbow conic bloom at the card base with violet border = BOTH pump and whale signals active simultaneously. The strongest setup.</div></div>
+      <div class="step-card"><div class="step-num">05</div><span class="step-icon">🔍</span><div class="step-title">Use the Filters</div><div class="step-desc">Use the filter bar to narrow focus: Pump Only, Whale Only, or Both at once. Perfect for high-signal scanning sessions.</div></div>
+      <div class="step-card"><div class="step-num">06</div><span class="step-icon">🖱️</span><div class="step-title">Hover for Details</div><div class="step-desc">Hover any token card to reveal a tooltip with price, 24H change, market cap, and signal description. Tap on mobile.</div></div>
+    </div>
+
+    <div class="section-header" style="margin-top:40px;"><div class="section-title">Visual Language Guide</div><div class="section-kanji">視覚言語</div></div>
+    <div class="two-col">
+      <div class="content-block">
+        <h2><span class="blk-kanji">色</span> Color Meanings</h2>
+        <ul>
+          <li><strong style="color:var(--neon-cyan)">Cyan / Teal</strong> — Pump signal active, upward price momentum detected</li>
+          <li><strong style="color:var(--gold)">Gold / Kintsugi</strong> — Whale wallet activity, large holder accumulation</li>
+          <li><strong style="color:var(--sakura)">Sakura Pink</strong> — Negative price change, downward pressure</li>
+          <li><strong style="color:var(--neon-violet)">Violet / Rainbow</strong> — Dual signal: pump + whale converging</li>
+          <li><strong style="color:var(--text-muted)">Grey / Muted</strong> — Token in quiet state, no active signals</li>
+        </ul>
+      </div>
+      <div class="content-block">
+        <h2><span class="blk-kanji">動</span> Animation Meanings</h2>
+        <ul>
+          <li><strong style="color:var(--neon-cyan)">Pulsing rings</strong> — Real-time pump momentum, ring speed = strength</li>
+          <li><strong style="color:var(--gold)">Gold shimmer sweep</strong> — Active whale movement in the last 15 minutes</li>
+          <li><strong style="color:var(--gold)">Kintsugi veins (hover)</strong> — Beauty of market fracture and recovery</li>
+          <li><strong style="color:var(--sakura)">Polka dot density</strong> — Volume concentration (Kusama-inspired)</li>
+          <li><strong style="color:var(--text-secondary)">Kanji glyph scale</strong> — Hover growth = signal confidence score</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="content-block">
+      <h2><span class="blk-kanji">文</span> Kanji Symbol Key</h2>
+      <div class="kanji-table">
+        <div class="stat-cell" style="text-align:center;"><div style="font-family:var(--font-display);font-size:2rem;color:var(--gold);">速</div><div class="stat-label">Speed / Pump</div></div>
+        <div class="stat-cell" style="text-align:center;"><div style="font-family:var(--font-display);font-size:2rem;color:var(--gold);">鯨</div><div class="stat-label">Whale</div></div>
+        <div class="stat-cell" style="text-align:center;"><div style="font-family:var(--font-display);font-size:2rem;color:var(--gold);">爆</div><div class="stat-label">Explosion</div></div>
+        <div class="stat-cell" style="text-align:center;"><div style="font-family:var(--font-display);font-size:2rem;color:var(--gold);">静</div><div class="stat-label">Stillness</div></div>
+        <div class="stat-cell" style="text-align:center;"><div style="font-family:var(--font-display);font-size:2rem;color:var(--gold);">狗</div><div class="stat-label">Community</div></div>
+        <div class="stat-cell" style="text-align:center;"><div style="font-family:var(--font-display);font-size:2rem;color:var(--gold);">雪</div><div class="stat-label">Avalanche</div></div>
+        <div class="stat-cell" style="text-align:center;"><div style="font-family:var(--font-display);font-size:2rem;color:var(--gold);">鎖</div><div class="stat-label">Chain</div></div>
+      </div>
+    </div>
+
+    <div class="content-block" style="background:rgba(0,245,212,.03);border-color:rgba(0,245,212,.15);">
+      <h2 style="color:var(--neon-cyan);"><span class="blk-kanji">⚠</span> Disclaimer</h2>
+      <p>PumpRadar.space is a data visualization and signal-detection tool. It does <strong>not</strong> constitute financial advice. All signals are algorithmic pattern detections. Always conduct your own research (DYOR) before making any trading decisions. Crypto markets are highly volatile.</p>
+    </div>
+  </div>
+
+  <!-- ===================================================
+       PAGE: WHITEPAPER
+       =================================================== -->
+  <div class="page-section" id="page-whitepaper">
+    <div class="page-hero">
+      <div class="page-hero-tag">白書 · Whitepaper v0.9 · Draft</div>
+      <h1>PumpRadar<br><span>Whitepaper</span></h1>
+      <p>Technical documentation covering architecture, signal methodology, tokenomics, and governance.</p>
+    </div>
+
+    <div class="wp-toc">
+      <div class="wp-toc-title">Table of Contents</div>
+      <a href="#wp-abstract"><span>1.0</span> Abstract</a>
+      <a href="#wp-problem"><span>2.0</span> Problem Statement</a>
+      <a href="#wp-solution"><span>3.0</span> Solution Architecture</a>
+      <a href="#wp-signals"><span>4.0</span> Signal Methodology</a>
+      <a href="#wp-tokenomics"><span>5.0</span> Tokenomics</a>
+      <a href="#wp-security"><span>6.0</span> Security & Privacy</a>
+      <a href="#wp-governance"><span>7.0</span> Governance</a>
+      <a href="#wp-team"><span>8.0</span> Team & Advisors</a>
+    </div>
+
+    <div id="wp-abstract" class="content-block">
+      <div class="wp-section-id">Section 1.0</div>
+      <div class="wp-section">
+        <h2>Abstract</h2>
+        <p>PumpRadar.space is a multi-chain real-time market intelligence platform that surfaces early pump signals and whale wallet activity through an art-driven visual interface. The platform aggregates on-chain data from 7+ blockchains — Ethereum, Solana, BNB Chain, Avalanche, Arbitrum, Base, and Polygon — applying proprietary anomaly detection to identify high-probability momentum events.</p>
+        <p>Unlike traditional crypto dashboards that overwhelm users with tabular data, PumpRadar.space presents market intelligence as a living visual experience, inspired by Japanese contemporary art: Neo Ukiyo-e, Murakami Pop, Kintsugi philosophy, and Kusama pattern theory.</p>
+        <p>Developed by the team at <a href="https://x.com/otakucompassai" target="_blank" rel="noopener" style="color:var(--neon-cyan);">@otakucompassai</a>, featured on <a href="https://orynth.dev/projects/pump-radar" target="_blank" rel="noopener" style="color:var(--gold);">Orynth.dev</a>. Public beta planned Q3 2026.</p>
+      </div>
+    </div>
+
+    <div id="wp-problem" class="content-block">
+      <div class="wp-section-id">Section 2.0</div>
+      <div class="wp-section">
+        <h2>Problem Statement</h2>
+        <h3>2.1 Information Overload</h3>
+        <p>The average DeFi trader monitors 4–12 platforms simultaneously: DEX aggregators, wallet trackers, price charts, social feeds, and on-chain explorers. This fragmentation causes decision fatigue and missed opportunities.</p>
+        <h3>2.2 Signal-to-Noise Ratio</h3>
+        <p>Most existing tools surface raw data without contextual filtering. A whale movement only matters in context with volume, price action, and social momentum. Current platforms treat these as separate data streams.</p>
+        <h3>2.3 UX as an Afterthought</h3>
+        <p>Crypto dashboards are functionally powerful but visually hostile — dense tables optimized for anxiety rather than clarity. The human visual system processes patterns and metaphors faster than numbers. PumpRadar.space leverages this biological advantage.</p>
+      </div>
+    </div>
+
+    <div id="wp-solution" class="content-block">
+      <div class="wp-section-id">Section 3.0</div>
+      <div class="wp-section">
+        <h2>Solution Architecture</h2>
+        <h3>3.1 Data Ingestion Layer</h3>
+        <p>PumpRadar connects to blockchain nodes and indexed APIs via WebSocket streams. Data is normalized into a unified schema and passed to the Signal Engine in real-time with sub-5-second latency.</p>
+        <h3>3.2 Signal Engine</h3>
+        <p>A multi-factor scoring system evaluates each token every block cycle. Inputs include: 30-minute volume deviation from 7-day rolling average, wallet concentration Gini coefficient, large transaction clustering, and social velocity index.</p>
+        <h3>3.3 Rendering Layer</h3>
+        <p>Signal outputs drive the visual art layer directly. Pump score → ring pulse intensity. Whale score → gold shimmer frequency. Dual signal → rainbow conic gradient activation. All visual parameters are data-derived, not decorative.</p>
+      </div>
+    </div>
+
+    <div id="wp-signals" class="content-block">
+      <div class="wp-section-id">Section 4.0</div>
+      <div class="wp-section">
+        <h2>Signal Methodology</h2>
+        <h3>4.1 Pump Signal Detection</h3>
+        <p>A pump signal fires when: volume is ≥3.5× the 7-day rolling average; price moved >4% in the last 30 minutes; and buy/sell ratio exceeds 1.7:1 across tracked DEX pairs. Signals are scored 0–100 and visualized proportionally.</p>
+        <h3>4.2 Whale Wallet Tracking</h3>
+        <p>Wallets are classified as "whale" when holdings exceed $500,000 in a single token. Alerts fire when a tracked wallet accumulates ≥2% of circulating supply in under 24 hours, or executes a single DEX transaction >$50,000.</p>
+        <h3>4.3 Dual Signal Convergence</h3>
+        <p>Fires when pump score ≥70 AND whale activity score ≥60 are simultaneously active on the same token within a 15-minute window. Historically correlated with the highest short-term price velocity in our backtested dataset (Q1 2023 – Q1 2026).</p>
+        <hr/>
+        <p style="font-size:.72rem;color:var(--text-muted);">* Historical correlation does not guarantee future performance.</p>
+      </div>
+    </div>
+
+    <div id="wp-tokenomics" class="content-block">
+      <div class="wp-section-id">Section 5.0</div>
+      <div class="wp-section">
+        <h2>Tokenomics</h2>
+        <p>The $PUMP utility token is planned for TGE in Q4 2026. Used for premium signal tier access, governance voting, and staking for whale alert priority. Total supply: 100,000,000 $PUMP.</p>
+        <div class="tokenomics-grid">
+          <div class="tknm-cell"><div class="tknm-pct" style="color:var(--neon-cyan);">35%</div><div class="tknm-label">Community & Ecosystem</div></div>
+          <div class="tknm-cell"><div class="tknm-pct" style="color:var(--gold);">20%</div><div class="tknm-label">Team (24mo vest)</div></div>
+          <div class="tknm-cell"><div class="tknm-pct" style="color:var(--sakura);">15%</div><div class="tknm-label">Treasury / DAO</div></div>
+          <div class="tknm-cell"><div class="tknm-pct" style="color:var(--neon-violet);">15%</div><div class="tknm-label">Investors (12mo lock)</div></div>
+          <div class="tknm-cell"><div class="tknm-pct" style="color:var(--wave-blue);">10%</div><div class="tknm-label">Liquidity & MM</div></div>
+          <div class="tknm-cell"><div class="tknm-pct" style="color:var(--text-secondary);">5%</div><div class="tknm-label">Advisors</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="wp-security" class="content-block">
+      <div class="wp-section-id">Section 6.0</div>
+      <div class="wp-section">
+        <h2>Security & Privacy</h2>
+        <p>PumpRadar.space operates as a read-only data aggregation platform. No wallet connection is required for core functionality. No private keys, seed phrases, or signing permissions are ever requested or stored.</p>
+        <p>Wallet tracking is performed on publicly available on-chain data only. Premium features use OAuth 2.0 with no on-chain signature requirements. All API endpoints are rate-limited and authenticated. Infrastructure runs on distributed edge nodes with DDoS mitigation.</p>
+      </div>
+    </div>
+
+    <div id="wp-governance" class="content-block">
+      <div class="wp-section-id">Section 7.0</div>
+      <div class="wp-section">
+        <h2>Governance</h2>
+        <p>Post-TGE, PumpRadar transitions to DAO governance. $PUMP holders with ≥1,000 tokens can submit proposals. Voting is snapshot-based (no gas required). Quorum requires 10% of circulating supply. Proposals passing ≥60% approval are enacted within 7 days.</p>
+        <p>Governance scope: signal threshold parameters, new chain additions, fee structure for premium tiers, and treasury allocation.</p>
+      </div>
+    </div>
+
+    <div id="wp-team" class="content-block">
+      <div class="wp-section-id">Section 8.0</div>
+      <div class="wp-section">
+        <h2>Team & Advisors</h2>
+        <p>PumpRadar.space is built by <a href="https://x.com/otakucompassai" target="_blank" rel="noopener" style="color:var(--neon-cyan);">@otakucompassai</a>, a Web3 development collective focused on the intersection of DeFi tooling and creative technology. The team brings experience across smart contract engineering, on-chain data science, and product design.</p>
+        <p>Full team dossiers and advisor roster will be published at public beta launch (Q3 2026). Interested advisors or investors may reach out via the official X/Twitter account.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================
+       PAGE: ROADMAP
+       =================================================== -->
+  <div class="page-section" id="page-roadmap">
+    <div class="page-hero">
+      <div class="page-hero-tag">ロードマップ · Roadmap 2026–2027</div>
+      <h1>The Path<br><span>Forward</span></h1>
+      <p>A phased build — from prototype art dashboard to full multi-chain intelligence platform with DAO governance. Each phase ships value to users before moving forward.</p>
+    </div>
+
+    <div class="section-header"><div class="section-title">Development Timeline</div><div class="section-kanji">開発計画</div></div>
+
+    <div class="roadmap-timeline">
+
+      <div class="rm-phase active">
+        <div class="rm-dot"></div>
+        <div class="rm-date">April 2026</div>
+        <div class="rm-badge live">▶ Active Now</div>
+        <div class="rm-title">Phase 1 — Prototype Launch 波</div>
+        <ul class="rm-items">
+          <li><span class="rm-check now"></span>Public prototype dashboard live at PumpRadar.space</li>
+          <li><span class="rm-check now"></span>7-token demo — SOL, ETH, BNB, ADA, DOGE, AVAX, LINK</li>
+          <li><span class="rm-check now"></span>Japanese art visual system fully implemented</li>
+          <li><span class="rm-check now"></span>Orynth.dev feature listing published</li>
+          <li><span class="rm-check now"></span>Twitter/X community launch @otakucompassai</li>
+          <li><span class="rm-check now"></span>Whitepaper v0.9 draft released</li>
+          <li><span class="rm-check now"></span>About, How To, Roadmap pages live</li>
+        </ul>
       </div>
 
-    </div><!-- /page-howto -->
-
-    <!-- ==================================================
-         PAGE: WHITEPAPER
-         ================================================== -->
-    <div class="page-section" id="page-whitepaper">
-
-      <div class="page-hero">
-        <div class="page-hero-tag">\u767d\u66f8 \u00b7 Whitepaper v0.9 \u00b7 Draft</div>
-        <h1>PumpRadar<br><span>Whitepaper</span></h1>
-        <p>Technical documentation for the PumpRadar.space platform \u2014 covering architecture, signal methodology, tokenomics, and governance.</p>
+      <div class="rm-phase upcoming">
+        <div class="rm-dot"></div>
+        <div class="rm-date">May – June 2026</div>
+        <div class="rm-badge next">⟶ Next Phase</div>
+        <div class="rm-title">Phase 2 — Live Data Integration 接続</div>
+        <ul class="rm-items">
+          <li><span class="rm-check pending"></span>WebSocket integration with Solana, Ethereum, BNB Chain</li>
+          <li><span class="rm-check pending"></span>Real-time price feeds via CoinGecko + Birdeye API</li>
+          <li><span class="rm-check pending"></span>Pump signal algorithm v1 — volume anomaly detection</li>
+          <li><span class="rm-check pending"></span>Whale wallet tracker — top 100 wallets per token</li>
+          <li><span class="rm-check pending"></span>Live ticker with real price data</li>
+          <li><span class="rm-check pending"></span>Mobile app prototype (React Native)</li>
+        </ul>
       </div>
 
-      <div class="wp-toc">
-        <div class="wp-toc-title">Table of Contents</div>
-        <a href="#wp-abstract"><span>1.0</span> Abstract</a>
-        <a href="#wp-problem"><span>2.0</span> Problem Statement</a>
-        <a href="#wp-solution"><span>3.0</span> Solution Architecture</a>
-        <a href="#wp-signals"><span>4.0</span> Signal Methodology</a>
-        <a href="#wp-tokenomics"><span>5.0</span> Tokenomics</a>
-        <a href="#wp-security"><span>6.0</span> Security & Privacy</a>
-        <a href="#wp-governance"><span>7.0</span> Governance</a>
-        <a href="#wp-team"><span>8.0</span> Team & Advisors</a>
+      <div class="rm-phase future">
+        <div class="rm-dot"></div>
+        <div class="rm-date">July – August 2026</div>
+        <div class="rm-badge future">◦ Planned</div>
+        <div class="rm-title">Phase 3 — Signal Engine V2 知能</div>
+        <ul class="rm-items">
+          <li><span class="rm-check pending"></span>Multi-factor scoring: volume + social + whale</li>
+          <li><span class="rm-check pending"></span>Twitter/X social velocity index integration</li>
+          <li><span class="rm-check pending"></span>Telegram pump channel monitor (read-only)</li>
+          <li><span class="rm-check pending"></span>Backtesting dashboard — historical signal accuracy</li>
+          <li><span class="rm-check pending"></span>Extend to Avalanche, Arbitrum, Base, Polygon</li>
+          <li><span class="rm-check pending"></span>Dual-signal convergence alert system</li>
+        </ul>
       </div>
 
-      <div id="wp-abstract" class="content-block">
-        <div class="wp-section-id">Section 1.0</div>
-        <div class="wp-section">
-          <h2>Abstract</h2>
-          <p>PumpRadar.space is a multi-chain real-time market intelligence platform that surfaces early-stage pump
+      <div class="rm-phase future">
+        <div class="rm-dot"></div>
+        <div class="rm-date">Q3 2026 — September</div>
+        <div class="rm-badge future">◦ Planned</div>
+        <div class="rm-title">Phase 4 — Public Beta 公開</div>
+        <ul class="rm-items">
+          <li><span class="rm-check pending"></span>Public beta with user accounts and watchlists</li>
+          <li><span class="rm-check pending"></span>Push notifications — browser + mobile alerts</li>
+          <li><span class="rm-check pending"></span>Premium tier — unlimited tokens, faster refresh</li>
+          <li><span class="rm-check pending"></span>Full team dossier and advisor announcements</li>
+          <li><span class="rm-check pending"></span>Independent security audit</li>
+        </ul>
+      </div>
+
+      <div class="rm-phase future">
+        <div class="rm-dot"></div>
+        <div class="rm-date">Q4 2026 — October–December</div>
+        <div class="rm-badge future">◦ Planned</div>
+        <div class="rm-title">Phase 5 — Token & DAO 自律</div>
+        <ul class="rm-items">
+          <li><span class="rm-check pending"></span>$PUMP token TGE and liquidity provision</li>
+          <li><span class="rm-check pending"></span>Staking module — stake $PUMP for signal priority</li>
+          <li><span class="rm-check pending"></span>DAO governance launch — snapshot voting live</li>
+          <li><span class="rm-check pending"></span>Revenue sharing for $PUMP stakers</li>
+        </ul>
+      </div>
+
+      <div class="rm-phase future">
+        <div class="rm-dot"></div>
+        <div class="rm-date">2027 — Long Term Vision</div>
+        <div class="rm-badge future">◦ Vision</div>
+        <div class="rm-title">Phase 6 — Expansion 拡張</div>
+        <ul class="rm-items">
+          <li><span class="rm-check pending"></span>AI-powered signal assistant (natural language queries)</li>
+          <li><span class="rm-check pending"></span>Support for 50+ chains and 10,000+ tokens</li>
+          <li><span class="rm-check pending"></span>PumpRadar Art Marketplace — NFT drops from visual system</li>
+          <li><span class="rm-check pending"></span>API access for developers — PumpRadar signals as a service</li>
+          <li><span class="rm-check pending"></span>Cross-platform desktop app (Electron)</li>
+          <li><span class="rm-check pending"></span>IRL Japanese art collaboration with digital artists</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-left">
+      <span>波動</span> PumpRadar.space · Built by
+      <a href="https://x.com/otakucompassai" target="_blank" rel="noopener" style="color:var(--neon-cyan);text-decoration:none;">@otakucompassai</a>
+      · <a href="https://orynth.dev/projects/pump-radar" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;">Orynth.dev</a>
+    </div>
+    <div class="footer-links">
+      <button class="footer-nav-link" onclick="showPage('about')">About</button>
+      <button class="footer-nav-link" onclick="showPage('howto')">How To</button>
+      <button class="footer-nav-link" onclick="showPage('whitepaper')">Whitepaper</button>
+      <button class="footer-nav-link" onclick="showPage('roadmap')">Roadmap</button>
+    </div>
+    <div class="footer-right">Data simulated · Not financial advice · © 2026 PumpRadar.space</div>
+  </footer>
+
+</div><!-- /shell -->
+
+<script>
+  /* === TOKEN DATA === */
+  const TOKENS = [
+    {sym:'SOL', name:'Solana',    chain:'Solana',    price:'$148.32',  change:'+14.7%', changePos:true,  pump:true,  whale:false, vol:'82%', volRaw:82, mcap:'$68.1B', txns:'4,821',  color:'#9945ff', color2:'#00f5d4', artKanji:'速', description:'Murakami bloom — rapid ascent'},
+    {sym:'ETH', name:'Ethereum',  chain:'Ethereum',  price:'$3,420.10',change:'-1.2%',  changePos:false, pump:false, whale:true,  vol:'91%', volRaw:91, mcap:'$410.2B',txns:'12,044', color:'#e8c36a', color2:'#f5dfa0', artKanji:'鯨', description:'Kintsugi gold — ancient power'},
+    {sym:'BNB', name:'BNB Chain', chain:'BSC',       price:'$412.88',  change:'+9.3%',  changePos:true,  pump:true,  whale:true,  vol:'95%', volRaw:95, mcap:'$63.5B', txns:'7,230',  color:'#f0a8c0', color2:'#b14aed', artKanji:'爆', description:'Neo Ukiyo-e storm — dual signal'},
+    {sym:'ADA', name:'Cardano',   chain:'Cardano',   price:'$0.4821',  change:'+0.3%',  changePos:true,  pump:false, whale:false, vol:'21%', volRaw:21, mcap:'$17.1B', txns:'892',    color:'#3a7bd5', color2:'#0093a8', artKanji:'静', description:'Quiet waters — no signals'},
+    {sym:'DOGE',name:'Dogecoin',  chain:'Dogecoin',  price:'$0.1340',  change:'+22.1%', changePos:true,  pump:true,  whale:false, vol:'76%', volRaw:76, mcap:'$19.4B', txns:'6,015',  color:'#f5c542', color2:'#f0a8c0', artKanji:'狗', description:'Sakura bloom — community pump'},
+    {sym:'AVAX',name:'Avalanche', chain:'Avalanche', price:'$37.90',   change:'+5.8%',  changePos:true,  pump:true,  whale:true,  vol:'88%', volRaw:88, mcap:'$15.7B', txns:'3,401',  color:'#e84142', color2:'#f0a8c0', artKanji:'雪', description:'Red mountain — dual signal'},
+    {sym:'LINK',name:'Chainlink', chain:'Ethereum',  price:'$14.62',   change:'-0.7%',  changePos:false, pump:false, whale:true,  vol:'55%', volRaw:55, mcap:'$8.6B',  txns:'2,190',  color:'#e8c36a', color2:'#3a7bd5', artKanji:'鎖', description:'Kintsugi veins — whale observed'},
+  ];
+
+  /* === PAGE NAVIGATION === */
+  function showPage(pageId) {
+    document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
+    const target = document.getElementById('page-' + pageId);
+    if (target) target.classList.add('active');
+    document.querySelectorAll('[data-page="' + pageId + '"]').forEach(b => b.classList.add('active'));
+    window.scrollTo({top:0,behavior:'smooth'});
+    if (pageId === 'dashboard') {
+      setTimeout(() => {
+        document.querySelectorAll('.vol-bar-fill').forEach(el => {
+          el.style.width = '0%';
+          setTimeout(() => { el.style.width = el.getAttribute('data-vol') + '%'; }, 100);
+        });
+      }, 100);
+    }
+  }
+
+  /* === MOBILE MENU === */
+  function toggleMobileMenu() {
+    document.getElementById('mobileMenu').classList.toggle('open');
+  }
+
+  /* === POLKA SVG === */
+  function makePolkaSVG(color) {
+    const dots = [];
+    for (let r=0;r<4;r++) for (let c=0;c<8;c++) {
+      const cx = (c/8*100)+(100/8/2), cy = (r/4*100)+(100/4/2);
+      const r2 = 2 + Math.random()*3.5;
+      dots.push(`<circle cx="${cx}%" cy="${cy}%" r="${r2}" fill="${color}" opacity="${.3+Math.random()*.5}"/>`);
+    }
+    return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 50'%3E${dots.join('')}%3C/svg%3E`;
+  }
+
+  /* === KINTSUGI SVG === */
+  function makeKintsugiSVG(color) {
+    return `<svg class="kintsugi-overlay" viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,120 Q60,80 100,140 T200,100 T320,130" stroke="${color}" stroke-width="1" fill="none" opacity="0.5"/>
+      <path d="M80,0 Q90,60 60,100 Q40,140 80,200" stroke="${color}" stroke-width="0.7" fill="none" opacity="0.4"/>
+      <path d="M200,200 Q220,140 260,100 Q290,70 320,80" stroke="${color}" stroke-width="0.8" fill="none" opacity="0.35"/>
+    </svg>`;
+  }
+
+  /* === RENDER CARD === */
+  function renderCard(t, i) {
+    const classes = ['token-card'];
+    if (t.pump)  classes.push('is-pump');
+    if (t.whale) classes.push('is-whale');
+    const bloom = t.pump && t.whale ? t.color2 : t.pump ? '#00f5d4' : '#e8c36a';
+    const volC  = t.pump && t.whale ? 'linear-gradient(90deg,var(--neon-cyan),var(--gold))' : t.pump ? 'var(--neon-cyan)' : t.whale ? 'var(--gold)' : 'rgba(255,255,255,.15)';
+    const rings  = t.pump  ? '<div class="pump-ring"></div><div class="pump-ring"></div><div class="pump-ring"></div>' : '';
+    const shimmer = t.whale ? '<div class="whale-shimmer"></div>' : '';
+    const tags   = (t.pump  ? '<div class="tag tag-pump">🌊 Pump</div>' : '') +
+                   (t.whale ? '<div class="tag tag-whale">🐋 Whale</div>' : '') +
+                   (!t.pump && !t.whale ? '<div class="tag tag-quiet">静 Quiet</div>' : '');
+    const tooltip = `<div class="card-tooltip">
+      <div class="tooltip-row"><span class="tooltip-key">Token</span><span class="tooltip-val">${t.name} (${t.sym})</span></div>
+      <div class="tooltip-row"><span class="tooltip-key">Price</span><span class="tooltip-val">${t.price}</span></div>
+      <div class="tooltip-row"><span class="tooltip-key">Change</span><span class="tooltip-val" style="color:${t.changePos?'var(--neon-cyan)':'var(--sakura)'}">${t.change}</span></div>
+      <div class="tooltip-row"><span class="tooltip-key">Signal</span><span class="tooltip-val">${t.description}</span></div>
+    </div>`;
+    return `<div class="${classes.join(' ')}" data-pump="${t.pump}" data-whale="${t.whale}" data-sym="${t.sym}" style="animation-delay:${i*.08}s">
+      ${rings}${shimmer}${makeKintsugiSVG(bloom)}${tooltip}
+      <div class="card-art">
+        <div class="polka-bg" style="background-image:url('${makePolkaSVG(t.color)}');background-size:cover;"></div>
+        <div class="glyph-bloom" style="background:radial-gradient(circle,${t.color} 0%,transparent 70%);"></div>
+        <div class="token-glyph" style="color:${t.color};text-shadow:0 0 30px ${t.color}88,0 0 60px ${t.color}44;">${t.artKanji}</div>
+      </div>
+      <div class="card-divider"></div>
+      <div class="card-meta">
+        <div><div class="token-name" style="color:${t.color};">${t.sym}</div><div class="token-chain">${t.chain}</div></div>
+        <div class="token-price-block"><div class="token-price">${t.price}</div><div class="token-change ${t.changePos?'pos':'neg'}">${t.change}</div></div>
+      </div>
+      <div class="card-tags">${tags}</div>
+      <div class="card-stats">
+        <div class="stat-cell"><div class="stat-label">Market Cap</div><div class="stat-value">${t.mcap}</div></div>
+        <div class="stat-cell"><div class="stat-label">24H Txns</div><div class="stat-value">${t.txns}</div></div>
+      </div>
+      <div class="vol-bar-wrap">
+        <div class="vol-bar-label"><span>Volume Activity</span><span style="color:${t.pump||t.whale?bloom:'var(--text-muted)'};">${t.vol}</span></div>
+        <div class="vol-bar-track"><div class="vol-bar-fill" data-vol="${t.volRaw}" style="width:0%;background:${volC};"></div></div>
+      </div>
+    </div>`;
+  }
+
+  /* === TICKER === */
+  function buildTicker() {
+    const track = document.getElementById('tickerTrack');
+    let html = '';
+    for (let p=0;p<2;p++) TOKENS.forEach(t => {
+      const c = t.changePos ? 'var(--neon-cyan)' : 'var(--sakura)';
+      html += `<div class="ticker-item"><span class="ticker-sym">${t.sym}</span><span>${t.price}</span><span style="color:${c};">${t.change}</span><span class="ticker-sep">·</span>${t.pump?'<span style="color:var(--neon-cyan)">🌊</span>':''}${t.whale?'<span style="color:var(--gold)">🐋</span>':''}<span class="ticker-sep">|</span></div>`;
+    });
+    track.innerHTML = html;
+  }
+
+  /* === RENDER GRID === */
+  function renderGrid(filter='all') {
+    const grid = document.getElementById('tokenGrid');
+    let filtered = TOKENS;
+    if (filter==='pump')  filtered = TOKENS.filter(t=>t.pump&&!t.whale);
+    if (filter==='whale') filtered = TOKENS.filter(t=>t.whale&&!t.pump);
+    if (filter==='both')  filtered = TOKENS.filter(t=>t.pump&&t.whale);
+    grid.innerHTML = filtered.map((t,i)=>renderCard(t,i)).join('');
+    document.getElementById('visibleCount').textContent = `Showing ${filtered.length} token${filtered.length!==1?'s':''}`;
+    requestAnimationFrame(()=>{
+      document.querySelectorAll('.vol-bar-fill').forEach(el=>{
+        const v = el.getAttribute('data-vol');
+        setTimeout(()=>{el.style.width=v+'%';},200);
+      });
+    });
+  }
+
+  /* === FILTER BUTTONS === */
+  document.querySelectorAll('.filter-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      renderGrid(btn.dataset.filter);
+    });
+  });
+
+  /* === PETALS === */
+  function spawnPetals() {
+    const canvas = document.querySelector('.bg-canvas');
+    for (let i=0;i<18;i++) {
+      const p = document.createElement('div');
+      p.className = 'petal';
+      const hue = Math.random()>.5?'var(--sakura)':'var(--gold)';
+      p.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*-10}%;width:${5+Math.random()*7}px;height:${5+Math.random()*7}px;background:${hue};opacity:0;animation-duration:${12+Math.random()*18}s;animation-delay:${Math.random()*15}s;`;
+      canvas.appendChild(p);
+    }
+  }
+
+  /* === LIVE FLICKER === */
+  function flickerStats() {
+    const vols=['$2.84B','$2.91B','$2.78B','$3.02B','$2.96B'];
+    const pumps=[12,13,11,14,12,10,15];
+    const whales=[7,8,6,9,7,8];
+    setInterval(()=>{
+      document.getElementById('header-vol').textContent=vols[Math.floor(Math.random()*vols.length)];
+      document.getElementById('header-pumps').textContent=pumps[Math.floor(Math.random()*pumps.length)];
+      document.getElementById('header-whales').textContent=whales[Math.floor(Math.random()*whales.length)];
+    },3500);
+  }
+
+  /* === INIT === */
+  buildTicker();
+  renderGrid('all');
+  spawnPetals();
+  flickerStats();
+</script>
+</body>
+</html>
